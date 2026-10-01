@@ -231,7 +231,7 @@ textarea{min-height:64px;resize:vertical}
 .pay-main p{margin:0}
 .pay-main .t{font-weight:800;font-variant-numeric:tabular-nums}
 .pay-main .d{font-size:12.5px;color:var(--muted)}
-.pay .pill{flex:none}
+.pay .pill{flex:none;max-width:40%;white-space:normal;text-align:center}
 .empty{display:flex;gap:12px;align-items:center;color:var(--muted);font-size:13.5px;margin:0}
 .empty .ill{width:44px;height:44px;border-radius:14px;background:var(--soft);display:grid;place-items:center;color:var(--acc);flex:none}
 
@@ -614,17 +614,19 @@ function calcLote(id){
              cuenta:M.cuenta,pagos:(M.pagos||[]).map(function(p){return {fecha:p.fecha,valor:p.valor,medio:p.medio,recibo:p.recibo,archivo:p.archivo,estado:'confirmado'};})};
   });
   var cur=out[P.ym]; if(!cur) return out;
-  cur.ver=0;
+  cur.ver=0; cur.conf=0;
   (S.D.reportes||[]).forEach(function(r){
-    if(r.lotes.indexOf(id)<0||r.estado==='confirmado') return;   // los confirmados ya están en la plantilla
+    if(r.lotes.indexOf(id)<0) return;
+    if(r.estado==='confirmado'&&r.en_plantilla!==false) return;   // ya está en la plantilla con su recibo
     var v=r.lotes.length>1?Math.round(r.valor/r.lotes.length):r.valor;
+    if(r.estado==='confirmado'){cur.pagos.push({fecha:r.fecha,valor:v,medio:r.medio,estado:'confirmado',ref:r.id,enCamino:true});cur.conf+=v;return;}   // confirmado a mano: el recibo sale en el próximo cuadre
     cur.pagos.push({fecha:r.fecha,valor:v,medio:r.medio,estado:r.estado,motivo:r.motivo,ref:r.id});
     if(r.estado==='verificacion') cur.ver+=v;
   });
-  cur.pend=cur.saldo;
+  cur.pend=Math.max(cur.saldo-cur.conf,0); cur.abonado=cur.pagado+cur.conf;
   if(cur.pend===0) cur.st={cls:'ok',txt:'Al día'};
   else if(cur.ver>=cur.pend) cur.st={cls:'info',txt:'Pago en verificación'};
-  else if(cur.pagado>0) cur.st={cls:'warn',txt:'Abono recibido · saldo pendiente'};
+  else if(cur.abonado>0) cur.st={cls:'warn',txt:'Abono recibido · saldo pendiente'};
   else if(cur.vencido>0) cur.st={cls:'bad',txt:'Saldo vencido'};
   else cur.st={cls:'warn',txt:'Cuota del mes pendiente'};
   return out;
@@ -669,8 +671,9 @@ function moveInd(){var b=$('t-'+S.tab),ind=$('tab-ind');if(!b||b.hidden)return;i
 function pill(st){return '<span class="pill '+st.cls+'">'+st.txt+'</span>';}
 function docBtn(t,s,kind,archivo){
   var ic=kind==='paz'?I.shield:kind==='rec'?I.receipt:I.file, cls=kind==='paz'?' paz':kind==='rec'?' rec':'';
-  var inner='<span class="ic'+cls+'">'+ic+'</span><span class="txt">'+esc(t)+'<small>'+esc(s)+' · tocar para ver</small></span><span class="dl">'+I.file+'</span>';
-  if(archivo&&url(archivo)) return '<button type="button" class="doc" data-ver="'+esc(archivo)+'" data-tit="'+esc(t)+'">'+inner+'</button>';
+  var ok=!!(archivo&&url(archivo));
+  var inner='<span class="ic'+cls+'">'+ic+'</span><span class="txt">'+esc(t)+'<small>'+esc(s)+(ok?' · tocar para ver':'')+'</small></span><span class="dl">'+(ok?I.file:I.clock)+'</span>';
+  if(ok) return '<button type="button" class="doc" data-ver="'+esc(archivo)+'" data-tit="'+esc(t)+'">'+inner+'</button>';
   return '<div class="doc off" title="Disponible en el próximo cuadre">'+inner.replace(I.dl,I.clock)+'</div>';
 }
 
@@ -680,11 +683,11 @@ function renderCuenta(){
   if(!o){$('p-cuenta').innerHTML='<div class="card"><p class="empty">Este lote no tiene cuenta de cobro este mes.</p></div>';return;}
   h+='<div class="hero in">'+pill(o.st)+'<p class="amount-label">Saldo por pagar · '+esc(etiq(S.lote))+'</p><p class="amount" id="amt">'+fmt(o.pend)+'</p>';
   if(o.pend===0){
-    h+='<div class="celebrate"><div class="ring"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 14.5l5 5 11-12"/></svg></div><div><p class="script">¡Gracias por estar al día!</p><p>'+(o.favorSig>0?'Tienes un saldo a favor de <b class="num">'+fmt(o.favorSig)+'</b> para '+P.siguiente+'.':'Tu cuota de '+P.mes+' está pagada.')+'</p></div></div>';
+    h+='<div class="celebrate"><div class="ring"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 14.5l5 5 11-12"/></svg></div><div><p class="script">¡Gracias por estar al día!</p><p>'+(o.favorSig>0?'Tienes un saldo a favor de <b class="num">'+fmt(o.favorSig)+'</b> para '+P.siguiente+'.':'Tu cuota de '+P.mes+' está pagada.')+(o.conf>0?' La administración ya confirmó tu pago; el recibo aparece aquí en el próximo cuadre.':'')+'</p></div></div>';
   } else if(o.st.cls==='info'){
     h+='<p class="sub">Tu pago de <b class="num">'+fmt(o.ver)+'</b> está en verificación. Cuando la administración lo confirme, tu saldo queda en <b class="num">'+fmt(Math.max(o.pend-o.ver,0))+'</b>.</p>';
-  } else if(o.pagado>0){
-    h+='<p class="sub">Recibimos tu abono de <b class="num">'+fmt(o.pagado)+'</b>. Falta <b class="num">'+fmt(o.pend)+'</b> de la cuenta N° '+o.num+'. Páguese hasta el '+P.paguese+'.</p>';
+  } else if(o.abonado>0){
+    h+='<p class="sub">Recibimos tu abono de <b class="num">'+fmt(o.abonado)+'</b>. Falta <b class="num">'+fmt(o.pend)+'</b> de la cuenta N° '+o.num+'. Páguese hasta el '+P.paguese+'.</p>';
   } else h+='<p class="sub">Cuenta de cobro N° '+o.num+' · Páguese hasta el '+P.paguese+'</p>';
   if(o.pend>0&&o.st.cls!=='info') h+='<div class="btnrow"><button type="button" class="btn onhero solid" data-go="pagar">'+I.bank+'Pagar ahora</button><button type="button" class="btn onhero" data-go="reportar">'+I.camera+'Ya pagué</button></div>';
   h+='</div>';
@@ -695,8 +698,8 @@ function renderCuenta(){
   if(o.v3>0) h+='<div class="row red"><span class="k">Saldo vencido '+esc(o.rango.toLowerCase())+(o.sin3?'':' + 3% de intereses')+'</span><span class="v">'+fmt(o.v3)+'</span></div>';
   if(o.favor>0) h+='<div class="row green"><span class="k">'+(o.favor_txt==='descuento'?'Descuento aprobado (menos)':'Saldo a favor (menos)')+'</span><span class="v">'+fmt(-o.favor)+'</span></div>';
   h+='<div class="row total"><span class="k">Total de la cuenta</span><span class="v">'+fmt(o.total)+'</span></div>';
-  o.pagos.filter(function(x){return x.estado==='confirmado';}).forEach(function(x){h+='<div class="row sub green"><span class="k">'+(o.pagado<o.total?'Abono':'Pago')+' '+fechaCorta(x.fecha)+'</span><span class="v">'+fmt(-x.valor)+'</span></div>';});
-  if(o.pagado>0&&o.pend>0) h+='<div class="row sub red"><span class="k">Saldo pendiente de esta cuenta</span><span class="v">'+fmt(o.pend)+'</span></div>';
+  o.pagos.filter(function(x){return x.estado==='confirmado';}).forEach(function(x){h+='<div class="row sub green"><span class="k">'+(o.abonado<o.total?'Abono':'Pago')+' '+fechaCorta(x.fecha)+'</span><span class="v">'+fmt(-x.valor)+'</span></div>';});
+  if(o.abonado>0&&o.pend>0) h+='<div class="row sub red"><span class="k">Saldo pendiente de esta cuenta</span><span class="v">'+fmt(o.pend)+'</span></div>';
   h+='</div>';
   if(o.pend>0&&o.st.cls!=='info'){
     if(o.v3>0) h+='<div class="alert-band">'+I.alert+'<div><b>¡Atención!</b><span>Tu cuenta incluye saldo vencido '+esc(o.rango.toLowerCase())+'. Si no se paga antes del '+P.paguese+', en '+P.siguiente+' vuelve a cobrarse con 3% de interés.</span></div></div>';
@@ -709,14 +712,15 @@ function renderCuenta(){
   o.pagos.forEach(function(x){
     var cls=x.estado==='confirmado'?'ok':x.estado==='verificacion'?'info':'bad';
     var pl=x.estado==='confirmado'?'<span class="pill ok">Confirmado</span>':x.estado==='verificacion'?'<span class="pill info">En verificación</span>':'<span class="pill bad">No aprobado</span>';
-    var extra=x.estado==='confirmado'&&o.pagado<o.total?' · Abono parcial':'';
-    h+='<div class="pay"><div class="ic '+cls+'">'+(x.estado==='confirmado'?I.check:x.estado==='verificacion'?I.clock:I.alert)+'</div><div class="pay-main"><p class="t">'+fmt(x.valor)+'</p><p class="d">'+fechaCorta(x.fecha)+' · '+esc(x.medio||'')+extra+(x.ref?' · '+esc(x.ref):'')+'</p>'+(x.estado==='rechazado'?'<p class="d" style="color:var(--bad)">Motivo: '+esc(x.motivo||'')+'. Escríbenos por WhatsApp.</p>':'')+'</div>'+pl+'</div>';
+    var extra=x.estado==='confirmado'&&o.abonado<o.total?' · Abono parcial':'';
+    h+='<div class="pay"><div class="ic '+cls+'">'+(x.estado==='confirmado'?I.check:x.estado==='verificacion'?I.clock:I.alert)+'</div><div class="pay-main"><p class="t">'+fmt(x.valor)+'</p><p class="d">'+fechaCorta(x.fecha)+' · '+esc(x.medio||'')+extra+(x.ref?' · '+esc(x.ref):'')+'</p>'+(x.enCamino?'<p class="d" style="color:var(--ok)">Confirmado por la administración · el recibo se genera en el próximo cuadre.</p>':'')+(x.estado==='rechazado'?'<p class="d" style="color:var(--bad)">Motivo: '+esc(x.motivo||'')+'. Escríbenos por WhatsApp.</p>':'')+'</div>'+pl+'</div>';
   });
   h+='</div>';
 
   h+='<div class="card in"><h3>'+I.dl+'Mis documentos</h3><div class="docs">';
   h+=docBtn('Cuenta de cobro N° '+o.num+' · '+cap(P.mes),'PDF · la misma que recibes cada mes','file',o.cuenta);
   o.pagos.filter(function(x){return x.estado==='confirmado'&&x.recibo;}).forEach(function(x){h+=docBtn('Recibo de pago '+x.recibo,'PDF · '+fechaCorta(x.fecha)+' · '+fmt(x.valor),'rec',x.archivo);});
+  o.pagos.filter(function(x){return x.enCamino;}).forEach(function(x){h+=docBtn('Recibo del pago del '+fechaCorta(x.fecha),'Se genera en el próximo cuadre · '+fmt(x.valor),'rec',null);});
   h+=pazBlock(o);
   h+='</div></div>';
   $('p-cuenta').innerHTML=h;
@@ -954,10 +958,10 @@ function repRow(r,act){
   h+='<p class="d">'+esc(r.nombre)+' · '+esc(r.doc)+'</p><p class="d">Pagó el '+fechaCorta(r.fecha)+' · '+esc(r.medio||'')+' · reportado '+esc(r.creado)+'</p>';
   if(r.nota) h+='<p class="d">Nota: '+esc(r.nota)+'</p>';
   if(act){
-    if(r.ask==='ok') h+='<div class="ask">¿Confirmas que '+fmt(r.valor)+' aparece en Bancolombia? El propietario lo verá confirmado; el registro en la plantilla y el recibo salen en el cuadre diario.<div class="rep-actions" style="margin:0"><button type="button" class="btn okb sm" data-act="ok2" data-id="'+esc(r.id)+'">Sí, confirmar</button><button type="button" class="btn ghost sm" data-act="cancel" data-id="'+esc(r.id)+'">Cancelar</button></div></div>';
+    if(r.ask==='ok') h+='<div class="ask">¿Confirmas que '+fmt(r.valor)+' aparece en Bancolombia? El propietario lo verá confirmado de inmediato; la plantilla y el recibo se generan en la siguiente revisión (cada hora de 7 a. m. a 7 p. m. si el computador está prendido).<div class="rep-actions" style="margin:0"><button type="button" class="btn okb sm" data-act="ok2" data-id="'+esc(r.id)+'">Sí, confirmar</button><button type="button" class="btn ghost sm" data-act="cancel" data-id="'+esc(r.id)+'">Cancelar</button></div></div>';
     else if(r.ask==='no') h+='<div class="ask"><label for="m-'+esc(r.id)+'" style="margin:0">Motivo que verá el propietario</label><select id="m-'+esc(r.id)+'"><option>El pago no aparece en el banco</option><option>El valor no coincide</option><option>El comprobante no se lee</option><option>Es una prueba</option></select><p class="d" style="margin:0">Sale de esta lista. El propietario ve el motivo, salvo si es una prueba (no lo ve).</p><div class="rep-actions" style="margin:0"><button type="button" class="btn badb sm" data-act="no2" data-id="'+esc(r.id)+'">No aprobar</button><button type="button" class="btn ghost sm" data-act="cancel" data-id="'+esc(r.id)+'">Cancelar</button></div></div>';
     else h+='<div class="rep-actions"><button type="button" class="btn okb sm" data-act="ok" data-id="'+esc(r.id)+'">'+I.check+'Confirmar</button><button type="button" class="btn badb sm" data-act="no" data-id="'+esc(r.id)+'">No aprobar</button></div>';
-  } else h+=r.estado==='confirmado'?'<span class="pill ok">Confirmado'+(r.recibo?' · '+esc(r.recibo):'')+'</span>':'<span class="pill bad">No aprobado · '+esc(r.motivo||'')+'</span>';
+  } else h+=r.estado==='confirmado'?'<span class="pill ok">Confirmado'+(r.recibo?' · '+esc(r.recibo):(r.en_plantilla===false?' a mano · recibo pendiente':''))+'</span>':'<span class="pill bad">No aprobado · '+esc(r.motivo||'')+'</span>';
   return h+'</div></div>';
 }
 var PZ_MOTIVOS=['Se pidió por error','El propietario ya no lo necesita','Se entregó por otro medio','Es una prueba'];
