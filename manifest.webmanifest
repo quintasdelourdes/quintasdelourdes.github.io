@@ -1,0 +1,15 @@
+{
+  "name": "Portal Quintas de Lourdes",
+  "short_name": "Quintas",
+  "description": "Portal de propietarios de la Urbanización Quintas de Lourdes P.H.: estado de cuenta, pagos, recibos y paz y salvo.",
+  "lang": "es-CO",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F1F5F8",
+  "theme_color": "#003C60",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
