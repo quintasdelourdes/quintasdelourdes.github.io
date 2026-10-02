@@ -406,6 +406,11 @@ footer{margin:18px 0 0;padding:0 0 96px;font-size:12px}
 .vz-b{display:flex;gap:8px;flex:none}
 @media (max-width:380px){.vz-b #vz-dl{padding-inline:10px}.vz-t{font-size:13px}}
 .vz-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 8px calc(16px + env(safe-area-inset-bottom,0px));background:var(--soft);display:grid;justify-items:center;align-content:start;gap:12px}
+.desg .row.red .v{color:var(--bad)}
+.linkbtn.onhero{color:#fff;opacity:.95;font-size:13px}
+.pill-btn{text-align:left}
+.note{display:flex;gap:8px;align-items:flex-start;margin:8px 0 2px;padding:9px 11px;border-radius:10px;background:var(--info-bg);color:var(--info);font-size:12.5px;font-weight:500;line-height:1.35}
+.note svg{flex:none;width:16px;height:16px;margin-top:1px}
 .vz-pg{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.18);border-radius:4px;max-width:100%;height:auto}
 .vz-img{max-width:100%;height:auto;border-radius:8px;background:#fff}
 .rep .vbtn{display:grid;place-items:center;color:var(--info);font-size:11px;font-weight:800;background:var(--bg);cursor:pointer;padding:0}
@@ -610,7 +615,7 @@ function calcLote(id){
   S.D.ventana.forEach(function(ym){
     var M=L.meses[ym]; if(!M) return;
     var v3=M.vencido>0?(M.sin3?M.vencido:halfUp(M.vencido*1.03)):0;
-    out[ym]={num:M.num,cuota:M.cuota,vencido:M.vencido,v3:v3,sin3:M.sin3,rango:M.rango||'',favor:M.favor||0,favor_txt:M.favor_txt,total:M.total,pagado:M.pagado,saldo:M.saldo,favorSig:M.favor_sig||0,
+    out[ym]={num:M.num,cuota:M.cuota,vencido:M.vencido,v3:v3,sin3:M.sin3,rango:M.rango||'',favor:M.favor||0,favor_txt:M.favor_txt,nota:M.nota||'',desglose:M.desglose||null,total:M.total,pagado:M.pagado,saldo:M.saldo,favorSig:M.favor_sig||0,
              cuenta:M.cuenta,pagos:(M.pagos||[]).map(function(p){return {fecha:p.fecha,valor:p.valor,medio:p.medio,recibo:p.recibo,archivo:p.archivo,estado:'confirmado'};})};
   });
   var cur=out[P.ym]; if(!cur) return out;
@@ -632,6 +637,31 @@ function calcLote(id){
   return out;
 }
 function calcDoc(){var o={};S.D.prop.lotes.forEach(function(id){o[id]=calcLote(id);});return o;}
+/* ---------- selector de cuánto pagar (v1.6): piezas de la cuenta que faltan por pagar, en el orden en que se aplica un abono ---------- */
+function piezasPendientes(o){
+  if(!o||!o.desglose||!o.desglose.length) return null;
+  var resta=o.abonado||0, out=[];
+  o.desglose.forEach(function(p){var v=p.valor; if(resta>0){var q=Math.min(resta,v);v-=q;resta-=q;} if(v>0) out.push({k:p.k,ym:p.ym,label:p.label,valor:v,parcial:v<p.valor});});
+  var suma=out.reduce(function(a,p){return a+p.valor;},0);
+  if(Math.abs(suma-o.pend)>1) return null;   // si no cuadra con el saldo, mejor no mostrar el desglose
+  return out;
+}
+function cubreTexto(pz,valor){
+  var resta=valor, cubre=[], parcial=null;
+  for(var i=0;i<pz.length&&resta>0;i++){var p=pz[i]; if(resta>=p.valor){cubre.push(p);resta-=p.valor;} else {parcial={p:p,v:resta};resta=0;}}
+  var nom=function(p){var l=p.label.replace(/ \(parcial\)$/,'');return p.k==='int'?(/^Intereses/.test(l)?'los ':'el ')+l.toLowerCase():p.k==='cuota'?'la cuota de '+l.replace(/^Cuota de /,''):l.toLowerCase();};
+  var partes=cubre.map(nom);
+  var txt='Con '+fmt(valor)+(partes.length?' cubres '+(partes.length>1?partes.slice(0,-1).join(', ')+' y '+partes[partes.length-1]:partes[0]):' abonas');
+  if(parcial) txt+=(partes.length?' y ':' ')+fmt(parcial.v)+' de '+nom(parcial.p);
+  var queda=pz.reduce(function(a,p){return a+p.valor;},0)-valor;
+  return txt+'. '+(queda>0?'Te quedarían <b class="num">'+fmt(queda)+'</b> pendientes.':'Quedas al día.');
+}
+function valorElegido(o,pz){
+  var g=S.pago||{modo:'todo'};
+  if(g.modo==='hasta'&&pz){var t=0,ok=false;for(var i=0;i<pz.length;i++){var p=pz[i];if(p.k==='cuota')break;t+=p.valor;if(p.ym===g.hasta){ok=true;break;}}if(ok)return t;}
+  if(g.modo==='otro') return g.valor>0?Math.min(o.pend,g.valor):o.pend;
+  return o.pend;
+}
 
 function waLink(){
   var msg='Hola, administración Quintas de Lourdes.';
@@ -689,18 +719,19 @@ function renderCuenta(){
   } else if(o.abonado>0){
     h+='<p class="sub">Recibimos tu abono de <b class="num">'+fmt(o.abonado)+'</b>. Falta <b class="num">'+fmt(o.pend)+'</b> de la cuenta N° '+o.num+'. Páguese hasta el '+P.paguese+'.</p>';
   } else h+='<p class="sub">Cuenta de cobro N° '+o.num+' · Páguese hasta el '+P.paguese+'</p>';
-  if(o.pend>0&&o.st.cls!=='info') h+='<div class="btnrow"><button type="button" class="btn onhero solid" data-go="pagar">'+I.bank+'Pagar ahora</button><button type="button" class="btn onhero" data-go="reportar">'+I.camera+'Ya pagué</button></div>';
+  if(o.pend>0&&o.st.cls!=='info') h+='<div class="btnrow"><button type="button" class="btn onhero solid" data-go="pagar">'+I.bank+'Pagar ahora</button><button type="button" class="btn onhero" data-go="reportar">'+I.camera+'Ya pagué</button></div>'+(o.desglose&&o.pend>0?'<p class="sub" style="margin-top:10px"><button type="button" class="linkbtn onhero" data-go="pagar" data-abono="1">¿No puedes pagar todo este mes? Puedes abonar</button></p>':'');
   h+='</div>';
   if(S.D.prop.lotes.length>1){var tot=0;S.D.prop.lotes.forEach(function(id){var m=C[id][P.ym];if(m)tot+=m.pend;});h+='<div class="card in"><div class="rows"><div class="row"><span class="k">Total por pagar de tus '+S.D.prop.lotes.length+' lotes</span><span class="v">'+fmt(tot)+'</span></div></div></div>';}
 
   h+='<div class="card in"><h3>'+I.file+'Cuenta de cobro N° '+o.num+' · '+P.MES+'</h3><div class="rows">';
   h+='<div class="row"><span class="k">Cuota de administración '+P.mes+'</span><span class="v">'+fmt(o.cuota)+'</span></div>';
   if(o.v3>0) h+='<div class="row red"><span class="k">Saldo vencido '+esc(o.rango.toLowerCase())+(o.sin3?'':' + 3% de intereses')+'</span><span class="v">'+fmt(o.v3)+'</span></div>';
-  if(o.favor>0) h+='<div class="row green"><span class="k">'+(o.favor_txt==='descuento'?'Descuento aprobado (menos)':'Saldo a favor (menos)')+'</span><span class="v">'+fmt(-o.favor)+'</span></div>';
+  if(o.favor>0) h+='<div class="row green"><span class="k">'+(o.favor_txt==='no_cobrada'?'Cuenta no cobrada (menos)':o.favor_txt==='descuento'?'Descuento aprobado (menos)':'Saldo a favor (menos)')+'</span><span class="v">'+fmt(-o.favor)+'</span></div>';
   h+='<div class="row total"><span class="k">Total de la cuenta</span><span class="v">'+fmt(o.total)+'</span></div>';
   o.pagos.filter(function(x){return x.estado==='confirmado';}).forEach(function(x){h+='<div class="row sub green"><span class="k">'+(o.abonado<o.total?'Abono':'Pago')+' '+fechaCorta(x.fecha)+'</span><span class="v">'+fmt(-x.valor)+'</span></div>';});
   if(o.abonado>0&&o.pend>0) h+='<div class="row sub red"><span class="k">Saldo pendiente de esta cuenta</span><span class="v">'+fmt(o.pend)+'</span></div>';
   h+='</div>';
+  if(o.nota) h+='<div class="note">'+I.info+'<span>'+esc(o.nota)+'</span></div>';
   if(o.pend>0&&o.st.cls!=='info'){
     if(o.v3>0) h+='<div class="alert-band">'+I.alert+'<div><b>¡Atención!</b><span>Tu cuenta incluye saldo vencido '+esc(o.rango.toLowerCase())+'. Si no se paga antes del '+P.paguese+', en '+P.siguiente+' vuelve a cobrarse con 3% de interés.</span></div></div>';
     else h+='<div class="warn-box">'+I.alert+'<span>Si el saldo no se paga antes del '+P.paguese+', en '+P.siguiente+' se cobra con 3% de interés.</span></div>';
@@ -751,8 +782,23 @@ function pazBlock(o){
 function renderPagar(){
   var h='', P=S.D&&S.D.periodo;
   if(!S.guest){
-    var o=calcDoc()[S.lote][P.ym]||{pend:0};
-    h+='<div class="card in"><h3>'+I.wallet+'Valor a pagar · '+esc(etiq(S.lote))+'</h3><div class="kv"><div class="kv-row"><span class="v big" id="c-valor">'+fmt(o.pend)+'</span><button type="button" class="copy" data-copy="'+o.pend+'" data-target="c-valor">'+I.copy+'Copiar</button></div></div>';
+    var o=calcDoc()[S.lote][P.ym]||{pend:0}, pz=o.pend>0?piezasPendientes(o):null, g=S.pago||(S.pago={modo:'todo'}), elegido=valorElegido(o,pz);
+    if(g.modo==='hasta'&&elegido===o.pend&&pz&&!pz.some(function(p){return p.ym===g.hasta&&p.k!=='cuota';})) g.modo='todo';
+    h+='<div class="card in"><h3>'+I.wallet+(pz?'¿Cuánto vas a pagar? · ':'Valor a pagar · ')+esc(etiq(S.lote))+'</h3>';
+    if(pz){
+      var mesesV=pz.filter(function(p){return p.k==='mes';});
+      h+='<div class="rows desg">'+pz.map(function(p){return '<div class="row'+(p.k==='int'?' red':'')+'"><span class="k">'+esc(p.label)+'</span><span class="v">'+fmt(p.valor)+'</span></div>';}).join('')+'<div class="row total"><span class="k">Total pendiente</span><span class="v">'+fmt(o.pend)+'</span></div></div>';
+      h+='<div class="chips" style="margin:12px 0 6px"><button type="button" class="pill-btn" data-pago="todo" aria-pressed="'+(g.modo==='todo')+'">Pagar todo · '+fmt(o.pend)+'</button>';
+      if(mesesV.length>1||(mesesV.length===1&&pz.some(function(p){return p.k==='int';}))){
+        var acum=0; pz.forEach(function(p){if(p.k==='cuota')return; acum+=p.valor; if(p.k==='mes') h+='<button type="button" class="pill-btn" data-pago="hasta" data-ym="'+p.ym+'" aria-pressed="'+(g.modo==='hasta'&&g.hasta===p.ym)+'">Ponerme al día hasta '+esc(p.label.replace(/ \(parcial\)$/,'').split(' ')[0].toLowerCase())+' · '+fmt(acum)+'</button>';});
+      }
+      h+='<button type="button" class="pill-btn" data-pago="otro" aria-pressed="'+(g.modo==='otro')+'">Abonar otro valor</button></div>';
+      if(g.modo==='otro') h+='<div class="money" style="margin:6px 0"><span>$</span><input id="p-otro" type="text" inputmode="numeric" placeholder="Escribe el valor" value="'+(g.valor?miles(g.valor):'')+'" aria-label="Valor del abono"></div>';
+      if(g.modo==='otro'&&g.valor>0) h+='<p class="small" style="margin:0 0 8px">'+cubreTexto(pz,elegido)+'</p>';
+      else if(g.modo==='hasta') h+='<p class="small" style="margin:0 0 8px">'+cubreTexto(pz,elegido)+'</p>';
+      h+='<p class="hint" style="margin:4px 0 10px">Los abonos se aplican primero al interés del mes y luego a los meses más antiguos. Lo que quede vencido al cierre del mes vuelve a cobrarse con 3 %.</p>';
+    }
+    h+='<div class="kv"><div class="kv-row"><span class="k">'+(pz?'Vas a pagar':'')+'</span><span class="v big" id="c-valor">'+fmt(elegido)+'</span><button type="button" class="copy" data-copy="'+elegido+'" data-target="c-valor">'+I.copy+'Copiar</button></div></div>';
     if(o.pend===0) h+='<p class="hint">Estás al día. Si quieres adelantar la cuota de '+P.siguiente+', usa los mismos datos.</p>';
     h+='</div>';
   }
@@ -795,9 +841,9 @@ function renderReportar(){
     $('p-reportar').innerHTML=h; return;
   }
   var multi=P.lotes.length>1;
-  h+='<form id="f-rep" class="card in" novalidate><p class="ok-tag">'+(R.leido&&R.leido.valor?I.check+'Comprobante leído. Revisa que todo coincida.':I.alert+'No pudimos leer el comprobante. Completa los datos.')+'</p><div class="readrow">';
+  h+='<form id="f-rep" class="card in" novalidate><p class="ok-tag">'+(R.leido&&R.leido.valor?I.check+'Comprobante leído. Revisa que todo coincida.':I.alert+'No pudimos leer bien el comprobante. Escribe el valor y la fecha tal como aparecen en él.')+'</p><div class="readrow">';
   h+=R.file.pdf?'<div class="thumb">PDF</div>':'<img src="'+R.file.img+'" alt="Vista previa del comprobante">';
-  h+='<div class="readgrid"><div class="kv-row"><span class="k">Valor</span><div class="money" style="flex:1"><span>$</span><input id="r-valor" type="text" inputmode="numeric" value="'+(R.valor?miles(R.valor):'')+'" aria-label="Valor pagado"></div></div>';
+  h+='<div class="readgrid"><div class="kv-row"><span class="k">Valor</span><div class="money" style="flex:1"><span>$</span><input id="r-valor" type="text" inputmode="numeric" value="'+(R.valor?miles(R.valor):'')+'" placeholder="Valor del comprobante" aria-label="Valor pagado"></div></div>';
   h+='<div class="kv-row"><span class="k">Fecha</span><input id="r-fecha" type="date" value="'+esc(R.fecha)+'" max="'+hoyISO()+'" style="padding:6px 10px;font-size:15px;border-radius:9px"></div>';
   h+='<div class="kv-row"><span class="k">Medio</span><select id="r-medio" style="padding:6px 10px;font-size:14px;border-radius:9px">'+['Transferencia Bancolombia','Pago con QR','Nequi','Daviplata','Transferencia desde otro banco','Corresponsal bancario','Consignación en efectivo'].map(function(m){return '<option'+(m===R.medio?' selected':'')+'>'+m+'</option>';}).join('')+'</select></div></div></div>';
   h+='<p class="small" style="margin:10px 0 0">Si algo no coincide con tu comprobante, tócalo y corrígelo.</p>';
@@ -822,7 +868,8 @@ function renderHistorial(){
   S.D.ventana.forEach(function(ym){
     var o=C[ym]; if(!o) return; var now=ym===P.ym;
     h+='<div class="mes'+(now?' now':'')+'"><div class="mes-h"><b>'+cap(mesTxt(ym))+(now?' · en curso':'')+'</b><span>Cuenta N° '+o.num+'</span></div>';
-    h+='<div class="row"><span class="k">Facturado'+(o.v3>0?' (incluye saldo vencido'+(o.sin3?'':' + 3%')+')':'')+(o.favor>0?' (menos '+(o.favor_txt==='descuento'?'descuento':'saldo a favor')+')':'')+'</span><span class="v">'+fmt(o.total)+'</span></div>';
+    h+='<div class="row"><span class="k">Facturado'+(o.v3>0?' (incluye saldo vencido'+(o.sin3?'':' + 3%')+')':'')+(o.favor>0?' (menos '+(o.favor_txt==='no_cobrada'?'cuenta no cobrada':o.favor_txt==='descuento'?'descuento':'saldo a favor')+')':'')+'</span><span class="v">'+fmt(o.total)+'</span></div>';
+    if(o.nota) h+='<div class="note">'+I.info+'<span>'+esc(o.nota)+'</span></div>';
     var conf=o.pagos.filter(function(x){return x.estado==='confirmado';});
     if(!conf.length) h+='<div class="row"><span class="k">Pagos</span><span class="v" style="color:var(--muted)">Sin pagos</span></div>';
     conf.forEach(function(x){h+='<div class="row"><span class="k">'+I.check+fechaCorta(x.fecha)+' · '+esc(x.medio||'')+'</span><span class="v">'+fmt(x.valor)+'</span></div>';});
@@ -1261,15 +1308,16 @@ document.addEventListener('click',function(e){
   if(t.id==='b-admin'){renderAdminPin();show('admin');return;}
   if(t.id==='b-pin'){var pin=$('pin').value,qn=($('adm-quien')&&$('adm-quien').value||'').trim();llamar('adminResumen',[pin],function(res){S.pin=pin;S.quien=qn;try{localStorage.setItem('qdl_quien',qn);}catch(e2){}S.admin=res;renderAdmin();},function(m){toast(m);});return;}
   if(t.id==='b-sync'){llamar('adminSincronizar',[S.pin],function(res){toast('Sincronización: '+res);llamar('adminResumen',[S.pin],function(r2){S.admin=r2;renderAdmin();});});return;}
-  if(t.id==='b-out'){S.doc=null;S.D=null;S.guest=false;S.rep=null;$('doc').value='';waLink();show('login');return;}
+  if(t.id==='b-out'){S.doc=null;S.D=null;S.guest=false;S.rep=null;S.pago=null;$('doc').value='';waLink();show('login');return;}
   if(t.id==='b-login2'){S.guest=false;show('login');$('doc').focus();return;}
   if(t.id==='b-back'){if(S.doc||S.guest){if(S.D&&S.D.prop)renderPortal();show('portal');}else show('login');return;}
   if(t.id==='b-otro'||t.id==='b-reattach'){S.rep=null;renderReportar();return;}
   if(t.id==='b-nota'){S.rep.showNota=!S.rep.showNota;if(!S.rep.showNota)S.rep.nota='';renderReportar();return;}
   if(t.id==='b-enviar'){enviarReporte();return;}
   if(t.dataset.tab){S.tab=t.dataset.tab;if(S.tab==='reportar'&&S.rep&&S.rep.step==='done')S.rep=null;renderTabs();if(S.tab==='reportar')renderReportar();return;}
-  if(t.dataset.go){S.tab=t.dataset.go;if(S.tab==='reportar')S.rep=null;renderPortal();window.scrollTo(0,0);return;}
-  if(t.dataset.lote){S.lote=t.dataset.lote;S.rep=null;renderPortal();return;}
+  if(t.dataset.pago){var gp=S.pago||(S.pago={modo:'todo'});gp.modo=t.dataset.pago;if(t.dataset.ym)gp.hasta=t.dataset.ym;renderPagar();if(gp.modo==='otro'){var inp=$('p-otro');if(inp)inp.focus();}return;}
+  if(t.dataset.go){S.tab=t.dataset.go;if(S.tab==='reportar')S.rep=null;if(t.dataset.abono)S.pago={modo:'otro',valor:0};renderPortal();window.scrollTo(0,0);return;}
+  if(t.dataset.lote){S.lote=t.dataset.lote;S.rep=null;S.pago=null;renderPortal();return;}
   if(t.dataset.rlote){S.rep.lotes=t.dataset.rlote;var C=calcDoc(),ym=S.D.periodo.ym;S.rep.valor=t.dataset.rlote==='all'?sum(S.D.prop.lotes,function(id){return C[id][ym]?C[id][ym].pend:0;}):(C[t.dataset.rlote][ym]?C[t.dataset.rlote][ym].pend:0);renderReportar();return;}
   if(t.dataset.adm){S.admTab=t.dataset.adm;S.form=null;S.f=null;S.pagarRef=null;renderAdmin();return;}
   if(t.dataset.copy){copy(t.dataset.copy,$(t.dataset.target));return;}
@@ -1304,7 +1352,7 @@ document.addEventListener('change',function(e){
       S.rep={step:'reading',file:{pdf:isPdf,name:f.name,img:isPdf?'':dataUrl}}; renderReportar();
       llamar('leerComprobante',[S.doc,b64,f.name,f.type||''],function(res){
         var L=res.leido||{};
-        S.rep={step:'confirm',file:S.rep.file,archivoId:res.archivoId,leido:L,valor:L.valor||pend,fecha:L.fecha&&L.fecha<=hoyISO()?L.fecha:hoyISO(),medio:L.medio||'Transferencia Bancolombia',lotes:multi?'all':S.lote,nota:'',showNota:false};
+        S.rep={step:'confirm',file:S.rep.file,archivoId:res.archivoId,leido:L,valor:L.valor||((S.pago&&S.pago.modo!=='todo'&&valorElegido(calcDoc()[S.lote][S.D.periodo.ym],piezasPendientes(calcDoc()[S.lote][S.D.periodo.ym])))||0),fecha:L.fecha&&L.fecha<=hoyISO()?L.fecha:hoyISO(),medio:L.medio||'Transferencia Bancolombia',lotes:multi?'all':S.lote,nota:'',showNota:false};
         renderReportar();
       },function(m){S.rep={step:'attach'};renderReportar();var e2=$('r-err');if(e2){e2.textContent='No se pudo subir el comprobante: '+m;e2.hidden=false;}});
     };
@@ -1312,6 +1360,7 @@ document.addEventListener('change',function(e){
   }
 });
 document.addEventListener('input',function(e){
+  if(e.target.id==='p-otro'){var dd=e.target.value.replace(/\D/g,'');e.target.value=dd?miles(parseInt(dd,10)):'';S.pago=S.pago||{modo:'otro'};S.pago.modo='otro';S.pago.valor=parseInt(dd||'0',10);var oo=calcDoc()[S.lote][S.D.periodo.ym],pz2=piezasPendientes(oo),el=valorElegido(oo,pz2);var cv=$('c-valor');if(cv){cv.textContent=fmt(el);var cb=cv.parentNode.querySelector('.copy');if(cb)cb.dataset.copy=el;}var sm=e.target.parentNode.nextElementSibling;if(sm&&sm.classList.contains('small'))sm.innerHTML=S.pago.valor>0?cubreTexto(pz2,el):'';else if(S.pago.valor>0){var p=document.createElement('p');p.className='small';p.style.margin='0 0 8px';p.innerHTML=cubreTexto(pz2,el);e.target.parentNode.insertAdjacentElement('afterend',p);}return;}
   if(e.target.id==='r-valor'){var d=e.target.value.replace(/\D/g,'');e.target.value=d?miles(parseInt(d,10)):'';if(S.rep)S.rep.valor=parseInt(d||'0',10);}
   if(e.target.id==='r-nota'&&S.rep){S.rep.nota=e.target.value;}
   if(e.target.id==='doc'){$('login-err').hidden=true;}
