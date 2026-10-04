@@ -250,6 +250,8 @@ textarea{min-height:64px;resize:vertical}
 .paz p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
 .paz svg.i{width:22px;height:22px;flex:none;color:var(--acc);margin-top:2px}
 .paz.wait svg.i{color:var(--info)}
+.paz.wait.ok{border-color:var(--ok);background:var(--ok-bg,var(--bg))}
+.paz.wait.ok svg.i{color:var(--ok)}
 .paz.locked svg.i{color:var(--muted)}
 .paz .btnrow .btn{flex:1 1 8rem}
 
@@ -761,14 +763,17 @@ function pazBlock(o){
   var P=S.D.periodo, L=S.D.lotes[S.lote], h='';
   var reqs=(S.D.solicitudes||[]).filter(function(q){return q.lote===S.lote;});
   var vigentes=(L.paz||[]).filter(function(z){return z.vigencia>=hoyISO();});
-  if(o.pend>0&&!vigentes.length) return '<div class="paz locked">'+I.lock+'<div><b>Paz y salvo de administración</b><p>Se habilita cuando el lote esté al día. Te falta '+fmt(o.pend)+' de '+P.mes+'.</p></div></div>';
+  var curso='';   // solicitudes en curso: se muestran siempre, incluso si ya venció una cuota nueva
+  reqs.filter(function(q){return q.estado==='pendiente';}).forEach(function(q){curso+='<div class="paz wait">'+I.clock+'<div><b>Paz y salvo '+(q.uso==='notaria'?'para notaría':'de uso general')+' solicitado</b><p>Pedido el '+fechaCorta(q.fecha)+'. La administración lo revisa y lo expide en máximo 24 horas hábiles; te queda aquí para descargar.</p></div></div>';});
+  reqs.filter(function(q){return q.estado==='aprobada';}).forEach(function(q){curso+='<div class="paz wait ok">'+I.check+'<div><b>Paz y salvo '+(q.uso==='notaria'?'para notaría':'de uso general')+' aprobado</b><p>La administración aprobó tu solicitud del '+fechaCorta(q.fecha)+'. El documento se está generando y te quedará aquí para descargar (normalmente el mismo día hábil).</p></div></div>';});
+  if(o.pend>0&&!vigentes.length) return curso+'<div class="paz locked">'+I.lock+'<div><b>Paz y salvo de administración</b><p>Se habilita cuando el lote esté al día. Te falta '+fmt(o.pend)+' de '+P.mes+'.</p></div></div>';
   vigentes.forEach(function(z){h+=docBtn('Paz y salvo '+z.ps+' · '+(z.uso==='notaria'?'notaría':'uso general'),'PDF · vigente hasta el '+fechaLarga(z.vigencia),'paz',z.archivo);});
-  reqs.filter(function(q){return q.estado==='pendiente';}).forEach(function(q){h+='<div class="paz wait">'+I.clock+'<div><b>Paz y salvo '+(q.uso==='notaria'?'para notaría':'de uso general')+' solicitado</b><p>Pedido el '+fechaCorta(q.fecha)+'. La administración lo expide en máximo 24 horas y te queda aquí para descargar.</p></div></div>';});
+  h+=curso;
   var lim=new Date(Date.now()-15*86400000).toISOString().slice(0,10);   // anuladas de los últimos 15 días, si no hay otra pendiente ni vigente del mismo uso
-  reqs.filter(function(q){return q.estado==='anulada'&&q.fecha>=lim&&!reqs.some(function(p){return p.uso===q.uso&&p.estado==='pendiente';})&&!vigentes.some(function(z){return z.uso===q.uso;});})
+  reqs.filter(function(q){return q.estado==='anulada'&&q.fecha>=lim&&!reqs.some(function(p){return p.uso===q.uso&&(p.estado==='pendiente'||p.estado==='aprobada');})&&!vigentes.some(function(z){return z.uso===q.uso;});})
       .slice(-1).forEach(function(q){h+='<div class="paz locked">'+I.alert+'<div><b>Solicitud del '+fechaCorta(q.fecha)+' anulada por la administración</b><p>'+esc(q.motivo||'Sin motivo indicado')+'. Si lo necesitas, puedes pedirlo de nuevo aquí abajo o escribirnos por WhatsApp.</p></div></div>';});
   if(o.pend===0){
-    var can=function(u){return !reqs.some(function(q){return q.uso===u&&q.estado==='pendiente';})&&!vigentes.some(function(z){return z.uso===u;});};
+    var can=function(u){return !reqs.some(function(q){return q.uso===u&&(q.estado==='pendiente'||q.estado==='aprobada');})&&!vigentes.some(function(z){return z.uso===u;});};
     if(can('general')||can('notaria')){
       h+='<div class="paz"><div class="paz-h">'+I.shield+'<div><b>Paz y salvo de administración</b><p>Estás al día: puedes pedirlo. Vigente hasta el '+P.paguese+'.</p></div></div><div class="btnrow">';
       if(can('general')) h+='<button type="button" class="btn ghost sm" data-paz="general">Uso general</button>';
@@ -954,7 +959,7 @@ var CATS=['Nómina','Servicios públicos','Mantenimiento','Combustible','Aseo e 
 function normq(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
 function admTab(k){return S.admTab===k;}
 function renderAdmin(){
-  var A=S.admin, pend=A.reportes.filter(function(r){return r.estado==='verificacion';}), pz=A.solicitudes.filter(function(q){return q.estado==='pendiente';});
+  var A=S.admin, pend=A.reportes.filter(function(r){return r.estado==='verificacion';}), pz=A.solicitudes.filter(function(q){return q.estado==='pendiente'||q.estado==='aprobada';});
   var nFac=(A.facturas||[]).filter(function(f){return f.estado!=='pagada';}).length+(A.correo||[]).filter(function(c){return c.tipo==='factura'&&c.estado==='nuevo';}).length;
   var h='<div class="card in"><div class="admin-head"><div><h2>Administración</h2><p class="small">'+(S.quien?'Hola, '+esc(S.quien)+'. ':'')+'Datos publicados el '+fechaCorta(A.generado)+'. Los pagos se confirman en el cuadre diario; aquí puedes adelantar una decisión.</p></div><div class="btnrow"><button type="button" class="btn ghost sm" id="b-sync">Sincronizar</button><button type="button" class="btn ghost sm" id="b-back">'+I.back+'Portal</button></div></div></div>';
   var T={confirmar:'Pendientes'+((pend.length+pz.length)?'<span class="badge">'+(pend.length+pz.length)+'</span>':''),egresos:'Egresos',facturas:'Facturas'+(nFac?'<span class="badge">'+nFac+'</span>':''),nomina:'Nómina',resumen:'Resumen'};
@@ -966,7 +971,7 @@ function renderAdmin(){
   else if(admTab('nomina')) h+=admNomina(A);
   else h+=admResumen(A,pend,pz);
   $('v-admin').innerHTML=h;
-  if(admTab('confirmar')) pintarConfirmados();
+  if(admTab('confirmar')){pintarConfirmados();pintarPaz();}
   if(admTab('nomina')&&S.form==='nomina') pintarNomina();
 }
 function admPendientes(A,pend,pz){
@@ -976,14 +981,29 @@ function admPendientes(A,pend,pz){
   h+='</div><div class="card in"><h3>'+I.shield+pz.length+' paz y salvo'+(pz.length===1?'':'s')+' solicitado'+(pz.length===1?'':'s')+'</h3>';
   if(!pz.length) h+='<p class="empty"><span class="ill">'+I.shield+'</span>No hay solicitudes pendientes.</p>';
   pz.forEach(function(q){h+=pzRow(q);});
-  var exp=A.solicitudes.filter(function(q){return q.estado==='expedido';}).reverse(), nz=S.admNz||5;
-  if(exp.length){h+='<p class="small" style="margin:12px 0 2px;font-weight:700">Expedidos</p>';exp.slice(0,nz).forEach(function(q){h+=pzRow(q);});if(exp.length>nz)h+='<button type="button" class="linkbtn" data-x="masz">Ver más expedidos ('+(exp.length-nz)+')</button>';}
+  var exp=A.solicitudes.filter(function(q){return q.estado==='expedido';});
+  if(exp.length) h+='<p class="small" style="margin:12px 0 6px;font-weight:700">Expedidos</p><div class="srch">'+I.search.replace('class="i"','class="i" aria-hidden="true"')+'<input id="adm-qz" type="search" placeholder="Lote, nombre, cédula o N° PS" value="'+esc(S.admQz||'')+'" autocomplete="off" aria-label="Buscar paz y salvos expedidos"></div><div id="paz-list"></div>';
   h+='</div>';
   var conf=A.reportes.filter(function(r){return r.estado==='confirmado';});
   if(conf.length){
     h+='<div class="card in"><h3>'+I.check+'Pagos confirmados</h3><div class="srch">'+I.search.replace('class="i"','class="i" aria-hidden="true"')+'<input id="adm-q" type="search" placeholder="Lote, nombre, cédula o recibo" value="'+esc(S.admQ||'')+'" autocomplete="off" aria-label="Buscar pagos confirmados"></div><div id="conf-list"></div></div>';
   }
   return h;
+}
+function pintarPaz(){
+  var cont=$('paz-list'); if(!cont) return;
+  var exp=S.admin.solicitudes.filter(function(q){return q.estado==='expedido';}).reverse(), q=normq(S.admQz).trim(), n=S.admNz||5, lista;
+  if(q){
+    var dig=q.replace(/\D/g,'');
+    lista=exp.filter(function(z){
+      if(dig&&dig.length<=2&&String(z.lote).split('y').some(function(x){return String(parseInt(x,10))===String(parseInt(dig,10));})) return true;
+      return normq(z.nombre).indexOf(q)>=0||(dig.length>=3&&String(z.doc).indexOf(dig)>=0)||(dig.length>=3&&normq(z.ps).indexOf(dig)>=0)||normq(z.ps).indexOf(q)>=0||normq(etiq(z.lote)).indexOf(q)>=0||(q.indexOf('notar')===0&&z.uso==='notaria')||(q.indexOf('general')===0&&z.uso!=='notaria');
+    });
+  } else lista=exp.slice(0,n);
+  var h=lista.length?lista.map(function(z){return pzRow(z);}).join(''):'<p class="empty"><span class="ill">'+I.info+'</span>No hay paz y salvos expedidos que coincidan.</p>';
+  if(q) h='<p class="small" style="margin:6px 0 0">'+lista.length+' resultado'+(lista.length===1?'':'s')+'</p>'+h;
+  else if(exp.length>n) h+='<button type="button" class="linkbtn" data-x="masz">Ver más expedidos ('+(exp.length-n)+')</button>';
+  cont.innerHTML=h;
 }
 function pintarConfirmados(){
   var cont=$('conf-list'); if(!cont) return;
@@ -1013,13 +1033,15 @@ function repRow(r,act){
 }
 var PZ_MOTIVOS=['Se pidió por error','El propietario ya no lo necesita','Se entregó por otro medio','Es una prueba'];
 function pzRow(q){
-  var pend=q.estado==='pendiente', exp=q.estado==='expedido';
-  var h='<div class="eg"><div class="ic'+(pend?'':exp?' ok':' x')+'">'+(pend?I.shield:exp?I.check:I.alert)+'</div><div class="eg-main">';
+  var pend=q.estado==='pendiente', apr=q.estado==='aprobada', exp=q.estado==='expedido';
+  var h='<div class="eg"><div class="ic'+((pend||apr||exp)?' ok':' x')+'">'+(pend?I.shield:(apr||exp)?I.check:I.alert)+'</div><div class="eg-main">';
   h+='<p class="t">'+esc(etiq(q.lote))+' · '+(q.uso==='notaria'?'Para notaría':'Uso general')+'</p>';
-  h+='<p class="d">'+esc(q.nombre)+' · '+esc(q.doc)+' · pedido el '+fechaCorta(q.fecha)+(pend?' · se expide en el cuadre diario':'')+'</p>';
-  if(pend){
+  h+='<p class="d">'+esc(q.nombre)+' · '+esc(q.doc)+' · pedido el '+fechaCorta(q.fecha)+(pend?' · al día según los datos publicados':'')+'</p>';
+  if(pend||apr){
+    if(apr) h+='<p class="d" style="margin-top:4px"><span class="pill ok">Aprobada</span> '+esc(q.motivo||'')+' · el documento se genera en el siguiente cuadre con el computador encendido y aquí pasa a "Expedido".</p>';
     if(q.ask) h+='<div class="ask"><label for="pm-'+esc(q.id)+'" style="margin:0">Motivo que verá el propietario</label><select id="pm-'+esc(q.id)+'">'+PZ_MOTIVOS.map(function(m){return '<option>'+esc(m)+'</option>';}).join('')+'</select><p class="d" style="margin:0">Sale de esta lista y no se expide. El propietario ve el motivo y puede volver a pedirla, salvo si es una prueba (no la ve).</p><div class="rep-actions" style="margin:0"><button type="button" class="btn badb sm" data-pz="anular2" data-id="'+esc(q.id)+'">Sí, anular</button><button type="button" class="btn ghost sm" data-pz="cancel" data-id="'+esc(q.id)+'">Cancelar</button></div></div>';
-    else h+='<div class="rep-actions"><button type="button" class="btn badb sm" data-pz="anular" data-id="'+esc(q.id)+'">Anular solicitud</button></div>';
+    else if(pend) h+='<div class="rep-actions"><button type="button" class="btn okb sm" data-pz="aprobar" data-id="'+esc(q.id)+'">'+I.check+'Aprobar</button><button type="button" class="btn badb sm" data-pz="anular" data-id="'+esc(q.id)+'">Anular</button></div>';
+    else h+='<div class="rep-actions"><button type="button" class="btn ghost sm" data-pz="anular" data-id="'+esc(q.id)+'">Anular</button></div>';
   } else if(exp) h+='<p class="d" style="margin-top:4px"><span class="pill ok">Expedido'+(q.ps?' · '+esc(q.ps):'')+'</span></p>';
   else h+='<p class="d" style="margin-top:4px"><span class="pill bad">Anulada'+(q.motivo?' · '+esc(q.motivo):'')+'</span></p>';
   return h+'</div></div>';
@@ -1230,7 +1252,7 @@ document.addEventListener('click',function(e){
   if(t.dataset.vruta){verDoc(t.dataset.tit||'Documento','adminLeerArchivo',[S.pin,'ruta',t.dataset.vruta]);return;}
   if(!S.admin) return;
   if(t.dataset.x==='masc'){S.admN=(S.admN||10)+10;pintarConfirmados();return;}
-  if(t.dataset.x==='masz'){S.admNz=(S.admNz||5)+10;renderAdmin();return;}
+  if(t.dataset.x==='masz'){S.admNz=(S.admNz||5)+10;pintarPaz();return;}
   if(t.dataset.x==='masf'){S.facN=(S.facN||5)+10;renderAdmin();return;}
   if(t.dataset.x==='masn'){S.nomN=(S.nomN||6)+12;renderAdmin();return;}
   if(t.dataset.x==='nodup'){S.nomDup=null;pintarNomina();return;}
@@ -1255,6 +1277,7 @@ document.addEventListener('change',function(e){
 document.addEventListener('input',function(e){
   var el=e.target;
   if(el.id==='adm-q'){S.admQ=el.value;pintarConfirmados();return;}
+  if(el.id==='adm-qz'){S.admQz=el.value;pintarPaz();return;}
   if(el.classList&&el.classList.contains('money-in')){var dg=el.value.replace(/\D/g,'');el.value=dg?miles(parseInt(dg,10)):'';}
   if(el.dataset&&el.dataset.nl&&S.nom){var L=S.nom[el.dataset.nl][+el.dataset.i];if(el.dataset.k==='valor')L.valor=parseInt(el.value.replace(/\D/g,''),10)||0;else L.concepto=el.value;clearTimeout(S.nomT);S.nomT=setTimeout(function(){var foco=document.activeElement&&document.activeElement.dataset?{nl:document.activeElement.dataset.nl,i:document.activeElement.dataset.i,k:document.activeElement.dataset.k}:null;pintarNomina();if(foco&&foco.nl){var q=document.querySelector('[data-nl="'+foco.nl+'"][data-i="'+foco.i+'"][data-k="'+foco.k+'"]');if(q){q.focus();var v=q.value;q.value='';q.value=v;}}},650);return;}
   if(el.dataset&&el.dataset.nf==='dias'&&S.nom){S.nom.dias=el.value.replace(/\D/g,'');clearTimeout(S.nomT);S.nomT=setTimeout(function(){pintarNomina();var q=$('n-dias');if(q){q.focus();var v=q.value;q.value='';q.value=v;}},650);}
@@ -1322,13 +1345,14 @@ document.addEventListener('click',function(e){
   if(t.dataset.adm){S.admTab=t.dataset.adm;S.form=null;S.f=null;S.pagarRef=null;renderAdmin();return;}
   if(t.dataset.copy){copy(t.dataset.copy,$(t.dataset.target));return;}
   if(t.dataset.paz){
-    llamar('solicitarPaz',[S.doc,S.lote,t.dataset.paz],function(res){toast('Solicitud enviada. Lo tendrás aquí en máximo 24 horas.');recargar(function(){renderCuenta();});});
+    llamar('solicitarPaz',[S.doc,S.lote,t.dataset.paz],function(res){toast('Solicitud enviada. La administración la revisa y lo tendrás aquí en máximo 24 horas hábiles.');recargar(function(){renderCuenta();});});
     return;
   }
   if(t.dataset.pz){
     var q=S.admin.solicitudes.filter(function(x){return x.id===t.dataset.id;})[0]; if(!q) return;
     if(t.dataset.pz==='anular') q.ask=true; else if(t.dataset.pz==='cancel') q.ask=false;
-    else if(t.dataset.pz==='anular2'){var pm=$('pm-'+q.id).value;llamar('adminDecidirSolicitud',[S.pin,q.id,pm],function(){q.estado='anulada';q.motivo=pm;q.ask=false;toast('Solicitud anulada. Ya no aparece en la lista.');renderAdmin();});return;}
+    else if(t.dataset.pz==='aprobar'){llamar('adminDecidirSolicitud',[S.pin,q.id,'aprobada',''],function(res){q.estado='aprobada';q.motivo=(res&&res.motivo)||'Aprobada en el panel';q.ask=false;toast('Aprobada. El propietario ya lo ve; el paz y salvo se genera en el siguiente cuadre con el computador encendido.');renderAdmin();});return;}
+    else if(t.dataset.pz==='anular2'){var pm=$('pm-'+q.id).value;llamar('adminDecidirSolicitud',[S.pin,q.id,'anulada',pm],function(){q.estado='anulada';q.motivo=pm;q.ask=false;toast('Solicitud anulada. Ya no aparece en la lista.');renderAdmin();});return;}
     renderAdmin(); return;
   }
   if(t.dataset.act){
