@@ -462,18 +462,17 @@ footer{margin:18px 0 0;padding:0 0 96px;font-size:12px}
 .pinbox input#pin,.pinbox input#adm-cod{letter-spacing:.3em;font-weight:800;text-align:center}
 .frm input[type=password]{padding:10px 11px;font-size:15px}
 .frm label{margin-top:8px}
-.band-inner{padding-top:calc(22px + env(safe-area-inset-top,0px))}
-.band-btn{margin-left:auto;flex:none;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:999px;padding:8px 12px;font-weight:700;font-size:12.5px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;position:relative;z-index:2;font-family:inherit}
-.band-btn:active{background:rgba(255,255,255,.28)}
-@media (max-width:460px){.band-btn{padding:9px;border-radius:50%}.band-btn span{display:none}.band-btn svg{width:20px;height:20px}}
-.ulist{display:grid;gap:8px}
-.ubtn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 14px;cursor:pointer;font-family:inherit;color:inherit}
-.ubtn:active{transform:scale(.99)}
-.ubtn .av{width:42px;height:42px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px;flex:none}
-.ubtn .nm{font-weight:800;font-size:15.5px}
-.ubtn .st{font-size:12.5px;color:var(--muted);font-weight:600}
-.ubtn .st.new{color:var(--ok)}
-.ubtn.sel{background:var(--bg)}
+.band{padding-top:env(safe-area-inset-top,0px)}
+.band .scene{top:env(safe-area-inset-top,0px)}
+.seg{margin:0 0 12px}
+.seg .tablist{display:flex}
+.seg .tab{flex:1;font-size:13.5px;padding:11px 4px}
+#v-admin .seg{margin-top:0}
+.who-lbl{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:12px 0 6px}
+.who-row{display:flex;align-items:center;gap:10px}
+.who-row .av{width:42px;height:42px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px;flex:none}
+.who-row select{flex:1;min-width:0;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 13px;font-size:16px;font-weight:600;color:inherit;font-family:inherit}
+.ok-txt{color:var(--ok);font-weight:700}
 .acct-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .acct-row .btn{width:auto;flex:0 0 auto}
 </style>
@@ -496,7 +495,6 @@ footer{margin:18px 0 0;padding:0 0 96px;font-size:12px}
       <p class="eyebrow">Urbanización cerrada · Apartadó</p>
       <h1>Portal de propietarios</h1>
     </div>
-    <button type="button" class="band-btn" id="b-admin-top" aria-label="Equipo de administración"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Equipo</span></button>
   </div>
   <svg class="swoosh" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true">
     <path class="c" d="M0 30 L0 16 C110 16 150 1 262 1 L400 1 L400 30 Z"/>
@@ -506,6 +504,7 @@ footer{margin:18px 0 0;padding:0 0 96px;font-size:12px}
 
 <main id="app">
   <section id="v-login" aria-label="Ingreso">
+    <div class="tabs seg"><div class="tablist static" role="tablist" aria-label="Quién entra"><button type="button" class="tab" data-who="prop" aria-selected="true"><span>Propietario</span></button><button type="button" class="tab" data-who="adm" aria-selected="false"><span>Administración</span></button></div></div>
     <form id="f-login" class="card in" novalidate>
       <h2 class="title2"><span class="t1">Consulta tu</span><span class="t2">estado de cuenta</span></h2>
       <p class="lead">Escribe tu número de cédula. Si el lote está a nombre de una empresa, escribe el NIT sin el dígito de verificación.</p>
@@ -987,37 +986,36 @@ function verDoc(titulo,fn,args){
 /* ---------- administración ---------- */
 var QUIEN_KEY='qdl_quien';
 function quienGuardado(){try{return localStorage.getItem(QUIEN_KEY)||'';}catch(e){return '';}}
+function segQuien(act){
+  return '<div class="tabs seg"><div class="tablist static" role="tablist" aria-label="Quién entra"><button type="button" class="tab" data-who="prop" aria-selected="'+(act==='prop')+'"><span>Propietario</span></button><button type="button" class="tab" data-who="adm" aria-selected="'+(act==='adm')+'"><span>Administración</span></button></div></div>';
+}
 function renderAdminPin(modo){
-  modo=modo||S.admModo||'usuarios'; S.admModo=modo;
+  modo=modo||'usuarios'; S.admModo=modo;
   var u=S.selUser||null, ini=function(n){return (n||'?').trim().split(/\s+/).map(function(x){return x[0];}).join('').slice(0,2).toUpperCase();};
-  var h='<div class="card in"><div class="admin-head"><h2>Administración</h2><button type="button" class="btn ghost sm" id="b-back">'+I.back+'Volver</button></div>';
-  if(modo==='usuarios'){
-    var eq=S.equipo||[];
-    h+='<p class="small" style="margin:10px 0 8px">Toca tu nombre para entrar.</p><div class="ulist">'+eq.map(function(x){
-      return '<button type="button" class="ubtn" data-user="'+esc(x.usuario)+'"><span class="av">'+esc(ini(x.nombre))+'</span><span><span class="nm">'+esc(x.nombre)+'</span><br><span class="st'+(x.activado?'':' new')+'">'+esc(x.rolTxt||'')+(x.activado?' · toca para entrar':' · primera vez: crea tu contraseña')+'</span></span></button>';}).join('')+'</div>';
-    if(!eq.length) h+='<p class="empty">No se pudo cargar la lista del equipo. Revisa la conexión y vuelve a intentar.</p>';
-    h+='<p class="small" style="text-align:center;margin:14px 0 0">'+(S.pinActivo?'<button type="button" class="linkbtn" id="b-modo-pin">Entrar con la clave de la administración</button>':'')+'</p>';
-  } else if(modo==='clave'&&u){
-    h+='<div class="ubtn sel" style="margin-top:10px;cursor:default"><span class="av">'+esc(ini(u.nombre))+'</span><span><span class="nm">'+esc(u.nombre)+'</span><br><span class="st">'+esc(u.rolTxt||'')+'</span></span><button type="button" class="linkbtn" id="b-modo-usuarios" style="margin-left:auto">Cambiar</button></div>'+
-       '<div class="pinbox" style="margin-top:12px"><label for="adm-pass">Tu contraseña</label><input id="adm-pass" type="password" autocomplete="current-password">'+
-       '<button type="button" class="btn primary block" id="b-login">Entrar</button>'+
-       '<p class="small" style="text-align:center;margin:10px 0 0">¿Olvidaste tu contraseña? Pídele a la administradora que la reinicie y te dé un código nuevo.</p></div>';
-  } else if(modo==='activar'&&u){
-    h+='<div class="ubtn sel" style="margin-top:10px;cursor:default"><span class="av">'+esc(ini(u.nombre))+'</span><span><span class="nm">'+esc(u.nombre)+'</span><br><span class="st new">Primera vez: crea tu contraseña</span></span><button type="button" class="linkbtn" id="b-modo-usuarios" style="margin-left:auto">Cambiar</button></div>'+
-       '<div class="pinbox" style="margin-top:12px"><p class="small" style="margin:0">Escribe el código de activación de 6 dígitos que te entregó la administración y elige tu contraseña.</p>'+
-       '<label for="adm-cod">Código de activación</label><input id="adm-cod" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="6 dígitos">'+
-       '<label for="adm-pass">Contraseña nueva (mínimo 6 caracteres)</label><input id="adm-pass" type="password" autocomplete="new-password">'+
-       '<label for="adm-pass2">Repite la contraseña</label><input id="adm-pass2" type="password" autocomplete="new-password">'+
-       '<button type="button" class="btn primary block" id="b-activar">Crear contraseña y entrar</button></div>';
-  } else if(modo==='pin'){
-    h+='<div class="pinbox" style="margin-top:12px"><p class="small" style="margin:0">Clave única de la administración (temporal, hasta que todos tengan su usuario).</p>'+
-       '<label for="adm-quien">Tu nombre</label><input id="adm-quien" type="text" autocomplete="name" placeholder="Para saber quién registró cada cosa" value="'+esc(quienGuardado())+'">'+
+  var h=segQuien('adm')+'<div class="card in"><h2 class="title2" style="margin-bottom:4px"><span class="t1">Equipo de la urbanización</span><span class="t2">Administración</span></h2>';
+  if(modo==='pin'){
+    h+='<p class="lead">Clave única de la administración (temporal, hasta que todos tengan su contraseña).</p><div class="pinbox"><label for="adm-quien">Tu nombre</label><input id="adm-quien" type="text" autocomplete="name" placeholder="Para saber quién registró cada cosa" value="'+esc(quienGuardado())+'">'+
        '<label for="pin">Clave de la administración</label><input id="pin" type="password" inputmode="numeric" autocomplete="off">'+
        '<button type="button" class="btn primary block" id="b-pin">Entrar</button>'+
-       '<p class="small" style="text-align:center;margin:10px 0 0"><button type="button" class="linkbtn" id="b-modo-usuarios">Entrar con mi usuario</button></p></div>';
-  } else { S.admModo='usuarios'; return renderAdminPin('usuarios'); }
+       '<p class="small" style="text-align:center;margin:10px 0 0"><button type="button" class="linkbtn" id="b-modo-usuarios">Entrar con mi nombre</button></p></div>';
+  } else {
+    var eq=S.equipo||[];
+    h+='<label class="who-lbl" for="adm-sel">¿Quién eres?</label><div class="who-row"><span class="av" id="adm-av">'+esc(u?ini(u.nombre):'?')+'</span><select id="adm-sel"><option value="">Escoge tu nombre…</option>'+eq.map(function(x){return '<option value="'+esc(x.usuario)+'"'+(u&&u.usuario===x.usuario?' selected':'')+'>'+esc(x.nombre)+' · '+esc(x.rolTxt||'')+'</option>';}).join('')+'</select></div>';
+    if(!eq.length) h+='<p class="err" style="margin:8px 0 0">No se pudo cargar la lista del equipo. Revisa la conexión e intenta de nuevo.</p>';
+    if(u&&u.activado){
+      h+='<div class="pinbox" style="margin-top:12px"><label for="adm-pass">Tu contraseña</label><input id="adm-pass" type="password" autocomplete="current-password">'+
+         '<button type="button" class="btn primary block" id="b-login">Entrar</button>'+
+         '<p class="small" style="text-align:center;margin:8px 0 0">¿La olvidaste? Pídele a la administradora que la borre y la vuelves a crear.</p></div>';
+    } else if(u){
+      h+='<div class="pinbox" style="margin-top:12px"><p class="small ok-txt" style="margin:0">Es tu primera vez, '+esc(u.nombre)+': crea tu contraseña.</p>'+
+         '<label for="adm-pass">Contraseña nueva (mínimo 6 caracteres)</label><input id="adm-pass" type="password" autocomplete="new-password">'+
+         '<label for="adm-pass2">Repite la contraseña</label><input id="adm-pass2" type="password" autocomplete="new-password">'+
+         '<button type="button" class="btn primary block" id="b-activar">Crear contraseña y entrar</button></div>';
+    }
+    if(S.pinActivo) h+='<p class="small" style="text-align:center;margin:14px 0 0"><button type="button" class="linkbtn" id="b-modo-pin">Entrar con la clave de la administración</button></p>';
+  }
   $('v-admin').innerHTML=h+'</div>';
-  var f=$('adm-pass')||$('adm-cod')||$('adm-quien'); if(f&&modo!=='usuarios') try{f.focus();}catch(e){}
+  var f=(modo==='pin')?$('adm-quien'):(u?$('adm-pass'):null); if(f) try{f.focus();}catch(e){}
 }
 var ROL_TXT={admin:'Administración',coadmin:'Coadministración',operario:'Operario',contadora:'Contadora'};
 function abrirAdmin(){
@@ -1031,13 +1029,13 @@ function cargarEquipo(){
     S.equipo=(r.equipo||[]).map(function(x){x.rolTxt=ROL_TXT[x.rol]||x.rol;return x;}); S.pinActivo=!!r.pin_activo;
     var ult=''; try{ult=localStorage.getItem('qdl_usuario')||'';}catch(e){}
     var pre=S.equipo.filter(function(x){return x.usuario===ult;})[0];
-    if(pre){S.selUser=pre;renderAdminPin(pre.activado?'clave':'activar');} else renderAdminPin('usuarios');
+    S.selUser=pre||null; renderAdminPin('usuarios');
   },function(m){S.equipo=[];renderAdminPin('usuarios');toast(m);});
 }
 function elegirUsuario(usuario){
-  var u=(S.equipo||[]).filter(function(x){return x.usuario===usuario;})[0]; if(!u) return;
-  S.selUser=u; try{localStorage.setItem('qdl_usuario',u.usuario);}catch(e){}
-  renderAdminPin(u.activado?'clave':'activar');
+  var u=(S.equipo||[]).filter(function(x){return x.usuario===usuario;})[0]||null;
+  S.selUser=u; try{if(u)localStorage.setItem('qdl_usuario',u.usuario);else localStorage.removeItem('qdl_usuario');}catch(e){}
+  renderAdminPin('usuarios');
 }
 function sesionLista(token,res){
   S.pin=token; S.admin=res; S.perfil=res.perfil||null; S.pinActivo=!!res.pin_activo;
@@ -1051,8 +1049,8 @@ function entrarUsuario(){
   llamar('login',[u,c,dispositivo()],function(r){llamar('adminResumen',[r.token],function(res){sesionLista(r.token,res);toast('Hola, '+r.perfil.nombre+'.');});},function(m){toast(m);});
 }
 function activarUsuario(){
-  var u=S.selUser&&S.selUser.usuario, cod=($('adm-cod').value||'').replace(/\D/g,''), c=$('adm-pass').value||'', c2=$('adm-pass2').value||'';
-  if(!u){renderAdminPin('usuarios');return;} if(cod.length!==6){toast('El código de activación tiene 6 dígitos.');return;}
+  var u=S.selUser&&S.selUser.usuario, cod='', c=$('adm-pass').value||'', c2=$('adm-pass2').value||'';
+  if(!u){renderAdminPin('usuarios');return;}
   if(c.length<6){toast('La contraseña debe tener al menos 6 caracteres.');return;}
   if(c!==c2){toast('Las dos contraseñas no coinciden.');return;}
   llamar('activar',[u,cod,c,dispositivo()],function(r){llamar('adminResumen',[r.token],function(res){sesionLista(r.token,res);toast('Listo, '+r.perfil.nombre+': tu contraseña quedó creada.');});},function(m){toast(m);});
@@ -1178,7 +1176,7 @@ function botonRecibo(r,txt){
   var ruta=r.ruta||(r.pdf?'NOMINA NEDER/'+r.pdf:''); if(!ruta) return '';
   return '<button type="button" class="linkbtn" data-vruta="'+esc(ruta)+'" data-tit="Recibo de nómina '+esc(r.num||r.periodo||'')+'">'+txt+'</button>';
 }
-/* --- v2.3: pantallazos del cuadre diario --- */
+/* --- v2.4: pantallazos del cuadre diario --- */
 function fechaHora(iso){if(!iso)return '';var s=String(iso),d=s.slice(0,10),t=s.slice(11,16);if(!t)return fechaCorta(d);var h=parseInt(t.slice(0,2),10),m=t.slice(3,5),ap=h>=12?'p. m.':'a. m.';h=h%12||12;return fechaCorta(d)+' '+h+':'+m+' '+ap;}
 function diasFaltan(ultimo){var out=[],d=new Date(ultimo+'T12:00:00'),hoy=hoyISO();for(var i=0;i<60;i++){d.setDate(d.getDate()+1);var iso=d.toISOString().slice(0,10);if(iso>=hoy)break;out.push(iso);}return out;}
 function admCuadre(A){
@@ -1397,20 +1395,20 @@ function selRol(id,v){return '<select id="'+id+'">'+ROLES.map(function(r){return
 function admUsuarios(A){
   var us=A.usuarios||[], yo=S.perfil&&S.perfil.usuario;
   var h='<div class="card in"><div class="admin-head"><h3 style="margin:0">'+(I.user||'')+'Usuarios del equipo</h3>'+(S.form==='usuario'?'':'<button type="button" class="btn primary sm" data-form="usuario">+ Nuevo usuario</button>')+'</div>';
-  h+='<p class="small">Cada persona entra con su usuario y su contraseña y ve solo las pestañas marcadas. Para crear la contraseña por primera vez (o después de reiniciarla) usa "Primera vez" en la pantalla de ingreso con el código de activación que aparece aquí.</p>';
+  h+='<p class="small">Cada persona elige su nombre al entrar y ve solo las pestañas marcadas. La primera vez (o después de que le borres la contraseña) crea su contraseña ahí mismo.</p>';
   if(S.form==='usuario'){
     h+='<div class="frm"><p class="frm-t">Nuevo usuario</p><label for="us-usuario">Usuario (minúsculas, sin espacios)</label><input id="us-usuario" type="text" autocapitalize="none" placeholder="p. ej. yudis"><label for="us-nombre">Nombre</label><input id="us-nombre" type="text" placeholder="Como aparecerá en los registros"><label for="us-rol">Rol</label>'+selRol('us-rol','operario')+'<label>Pestañas que puede ver</label>'+chkPest('us',['egresos'])+'<label class="small" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="us-propios" checked> Solo ve los gastos que registre él mismo</label><div class="btnrow" style="margin-top:10px"><button type="button" class="btn primary" id="b-us-crear">Crear y obtener código</button><button type="button" class="btn ghost" data-form="">Cancelar</button></div><p class="small err" id="us-err" hidden></p></div>';
   }
   us.forEach(function(u){
     var ed=S.usEd===u.usuario;
     h+='<div class="item" style="padding:10px 0;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><div><strong>'+esc(u.nombre)+'</strong> <span class="small">· '+esc(u.usuario)+' · '+esc((ROLES.filter(function(r){return r[0]===u.rol;})[0]||['',u.rol])[1])+'</span>'+(u.activo?'':' <span class="badge" style="background:#999">inactivo</span>')+'</div>'+
-       '<div class="small">'+(u.activado?'Con contraseña'+(u.ultimo_ingreso?' · último ingreso '+esc(u.ultimo_ingreso):''):'<strong>Sin activar</strong> · código <strong style="font-size:1.1em;letter-spacing:1px">'+esc(u.codigo||'')+'</strong>'+(u.codigo_vence?' (vence '+esc(u.codigo_vence)+')':''))+'</div></div>';
+       '<div class="small">'+(u.activado?'Con contraseña'+(u.ultimo_ingreso?' · último ingreso '+esc(u.ultimo_ingreso):''):'<strong>Sin contraseña aún</strong> · la crea al entrar por primera vez')+'</div></div>';
     h+='<div class="small" style="margin:4px 0">Pestañas: '+((u.pestanas||[]).map(function(k){var p=PESTANAS.filter(function(x){return x[0]===k;})[0];return p?p[1]:k;}).join(', ')||'ninguna')+(u.permisos&&u.permisos.egresos_ver&&u.permisos.egresos_ver!=='todos'?' · gastos: solo los de '+esc((u.egresos_ver_nombres||[]).join(', ')):'')+(u.permisos&&u.permisos.solo_ver&&u.permisos.solo_ver.length?' · solo ve (sin registrar): '+esc(u.permisos.solo_ver.map(function(k){var p=PESTANAS.filter(function(x){return x[0]===k;})[0];return p?p[1]:k;}).join(', ')):'')+'</div>';
     if(ed){
       h+='<div class="frm"><label for="ue-nombre">Nombre</label><input id="ue-nombre" type="text" value="'+esc(u.nombre)+'"><label for="ue-rol">Rol</label>'+selRol('ue-rol',u.rol)+'<label>Pestañas</label>'+chkPest('ue',u.pestanas)+
          '<div class="btnrow"><button type="button" class="btn primary sm" data-us-guardar="'+esc(u.usuario)+'">Guardar</button><button type="button" class="btn ghost sm" data-us-editar="">Cancelar</button></div></div>';
     } else {
-      h+='<div class="btnrow" style="margin-top:6px"><button type="button" class="btn ghost sm" data-us-editar="'+esc(u.usuario)+'">Editar</button>'+(u.usuario===yo?'':'<button type="button" class="btn ghost sm" data-us-reiniciar="'+esc(u.usuario)+'">'+(u.activado?'Reiniciar contraseña':'Código nuevo')+'</button><button type="button" class="btn ghost sm" data-us-activo="'+esc(u.usuario)+'|'+(u.activo?'0':'1')+'">'+(u.activo?'Desactivar':'Activar')+'</button>')+'</div>';
+      h+='<div class="btnrow" style="margin-top:6px"><button type="button" class="btn ghost sm" data-us-editar="'+esc(u.usuario)+'">Editar</button>'+(u.usuario===yo?'':''+(u.activado?'<button type="button" class="btn ghost sm" data-us-reiniciar="'+esc(u.usuario)+'">Borrar contraseña</button>':'')+'<button type="button" class="btn ghost sm" data-us-activo="'+esc(u.usuario)+'|'+(u.activo?'0':'1')+'">'+(u.activo?'Desactivar':'Activar')+'</button>')+'</div>';
     }
     h+='</div>';
   });
@@ -1427,7 +1425,7 @@ function usuariosAccion(t){
     var d={usuario:($('us-usuario').value||'').trim().toLowerCase(),nombre:($('us-nombre').value||'').trim(),rol:$('us-rol').value,pestanas:pestSel('us'),permisos:{}};
     if($('us-propios').checked) d.permisos.egresos_ver=[d.usuario];
     if(!d.usuario||!d.nombre){toast('Escribe el usuario y el nombre.');return true;}
-    llamar('usuarioCrear',[S.pin,d],function(u){S.form=null;recargarAdmin('Usuario '+u.usuario+' creado. Código de activación: '+u.codigo);});return true;
+    llamar('usuarioCrear',[S.pin,d],function(u){S.form=null;recargarAdmin('Usuario '+u.usuario+' creado: ya puede entrar y crear su contraseña.');});return true;
   }
   if(t.hasAttribute('data-us-editar')){S.usEd=t.getAttribute('data-us-editar')||null;renderAdmin();return true;}
   if(t.hasAttribute('data-us-guardar')){
@@ -1436,8 +1434,8 @@ function usuariosAccion(t){
   }
   if(t.hasAttribute('data-us-reiniciar')){
     var u2=t.getAttribute('data-us-reiniciar');
-    if(!confirm('¿Reiniciar la contraseña de '+u2+'? Tendrá que crear una nueva con el código que aparecerá aquí.')) return true;
-    llamar('usuarioReiniciar',[S.pin,u2],function(r){recargarAdmin('Código nuevo para '+u2+': '+r.codigo);});return true;
+    if(!confirm('¿Borrar la contraseña de '+u2+'? La próxima vez que entre creará una nueva.')) return true;
+    llamar('usuarioReiniciar',[S.pin,u2],function(r){recargarAdmin('Contraseña de '+u2+' borrada: la crea de nuevo al entrar.');});return true;
   }
   if(t.hasAttribute('data-us-activo')){
     var p=t.getAttribute('data-us-activo').split('|');
@@ -1456,10 +1454,9 @@ function usuariosAccion(t){
   if(t.id==='b-logout'){salirAdmin();return true;}
   if(t.id==='b-login'){entrarUsuario();return true;}
   if(t.id==='b-activar'){activarUsuario();return true;}
-  if(t.id==='b-modo-usuarios'){S.selUser=null;try{localStorage.removeItem('qdl_usuario');}catch(e){}renderAdminPin('usuarios');return true;}
+  if(t.id==='b-modo-usuarios'){renderAdminPin('usuarios');return true;}
   if(t.id==='b-modo-pin'){renderAdminPin('pin');return true;}
-  var ub=t.closest&&t.closest('[data-user]'); if(ub){elegirUsuario(ub.getAttribute('data-user'));return true;}
-  if(t.id==='b-admin-top'||(t.closest&&t.closest('#b-admin-top'))){abrirAdmin();return true;}
+  var sg=t.closest&&t.closest('[data-who]'); if(sg){ if(sg.getAttribute('data-who')==='adm'){ if(!$('v-admin').hidden) return true; abrirAdmin(); } else { if(S.doc||S.guest){show('portal');} else show('login'); } return true; }
   return false;
 }
 /* --- acciones del panel (v1.5) --- */
@@ -1665,6 +1662,7 @@ document.addEventListener('keydown',function(e){
   if((e.key==='Enter'||e.keyCode===13)&&e.target.id==='adm-pass2'&&$('b-activar')){e.preventDefault();$('b-activar').click();}
 });
 window.addEventListener('resize',moveInd);
+document.addEventListener('change',function(e){ if(e.target&&e.target.id==='adm-sel') elegirUsuario(e.target.value); });
 $('f-nombre').textContent=CFG.nombre||''; $('f-nit').textContent=CFG.nit||''; $('f-dir').textContent=CFG.direccion||''; $('f-mail').textContent=CFG.email||'';
 $('steps3').innerHTML=STEPS;
 $('f-wa').textContent=(CFG.whatsapp||'').replace(/^57/,'').replace(/(\d{3})(\d{3})(\d{4})/,'$1 $2 $3');
