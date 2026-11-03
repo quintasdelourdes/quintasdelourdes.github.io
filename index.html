@@ -457,6 +457,11 @@ footer{margin:18px 0 0;padding:0 0 96px;font-size:12px}
 .inl input[type=date]{width:auto;padding:5px 8px;font-size:13px;border-radius:9px}
 .pinbox #adm-quien{letter-spacing:normal;text-align:left;font-weight:600}
 .tile .small{font-size:11.5px;color:var(--muted)}
+.pinbox input,.frm input[type=password]{width:100%;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 13px;font-size:16px;outline:none;box-sizing:border-box}
+.pinbox input#adm-user,.pinbox input#adm-pass,.pinbox input#adm-pass2,.pinbox #adm-quien,.frm input[type=password]{letter-spacing:normal;text-align:left;font-weight:600}
+.pinbox input#pin,.pinbox input#adm-cod{letter-spacing:.3em;font-weight:800;text-align:center}
+.frm input[type=password]{padding:10px 11px;font-size:15px}
+.frm label{margin-top:8px}
 </style>
 </head>
 <body>
@@ -1360,7 +1365,7 @@ function admUsuarios(A){
   var h='<div class="card in"><div class="admin-head"><h3 style="margin:0">'+(I.user||'')+'Usuarios del equipo</h3>'+(S.form==='usuario'?'':'<button type="button" class="btn primary sm" data-form="usuario">+ Nuevo usuario</button>')+'</div>';
   h+='<p class="small">Cada persona entra con su usuario y su contraseña y ve solo las pestañas marcadas. Para crear la contraseña por primera vez (o después de reiniciarla) usa "Primera vez" en la pantalla de ingreso con el código de activación que aparece aquí.</p>';
   if(S.form==='usuario'){
-    h+='<div class="form"><h4>Nuevo usuario</h4><label for="us-usuario">Usuario (minúsculas, sin espacios)</label><input id="us-usuario" type="text" autocapitalize="none" placeholder="p. ej. yudis"><label for="us-nombre">Nombre</label><input id="us-nombre" type="text" placeholder="Como aparecerá en los registros"><label for="us-rol">Rol</label>'+selRol('us-rol','operario')+'<label>Pestañas que puede ver</label>'+chkPest('us',['egresos'])+'<label class="small" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="us-propios" checked> Solo ve los gastos que registre él mismo</label><div class="btnrow" style="margin-top:10px"><button type="button" class="btn primary" id="b-us-crear">Crear y obtener código</button><button type="button" class="btn ghost" data-form="">Cancelar</button></div><p class="small err" id="us-err" hidden></p></div>';
+    h+='<div class="frm"><p class="frm-t">Nuevo usuario</p><label for="us-usuario">Usuario (minúsculas, sin espacios)</label><input id="us-usuario" type="text" autocapitalize="none" placeholder="p. ej. yudis"><label for="us-nombre">Nombre</label><input id="us-nombre" type="text" placeholder="Como aparecerá en los registros"><label for="us-rol">Rol</label>'+selRol('us-rol','operario')+'<label>Pestañas que puede ver</label>'+chkPest('us',['egresos'])+'<label class="small" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="us-propios" checked> Solo ve los gastos que registre él mismo</label><div class="btnrow" style="margin-top:10px"><button type="button" class="btn primary" id="b-us-crear">Crear y obtener código</button><button type="button" class="btn ghost" data-form="">Cancelar</button></div><p class="small err" id="us-err" hidden></p></div>';
   }
   us.forEach(function(u){
     var ed=S.usEd===u.usuario;
@@ -1368,7 +1373,7 @@ function admUsuarios(A){
        '<div class="small">'+(u.activado?'Con contraseña'+(u.ultimo_ingreso?' · último ingreso '+esc(u.ultimo_ingreso):''):'<strong>Sin activar</strong> · código <strong style="font-size:1.1em;letter-spacing:1px">'+esc(u.codigo||'')+'</strong>'+(u.codigo_vence?' (vence '+esc(u.codigo_vence)+')':''))+'</div></div>';
     h+='<div class="small" style="margin:4px 0">Pestañas: '+((u.pestanas||[]).map(function(k){var p=PESTANAS.filter(function(x){return x[0]===k;})[0];return p?p[1]:k;}).join(', ')||'ninguna')+(u.permisos&&u.permisos.egresos_ver&&u.permisos.egresos_ver!=='todos'?' · gastos: solo los de '+esc((u.egresos_ver_nombres||[]).join(', ')):'')+(u.permisos&&u.permisos.solo_ver&&u.permisos.solo_ver.length?' · solo ve (sin registrar): '+esc(u.permisos.solo_ver.map(function(k){var p=PESTANAS.filter(function(x){return x[0]===k;})[0];return p?p[1]:k;}).join(', ')):'')+'</div>';
     if(ed){
-      h+='<div class="form"><label for="ue-nombre">Nombre</label><input id="ue-nombre" type="text" value="'+esc(u.nombre)+'"><label for="ue-rol">Rol</label>'+selRol('ue-rol',u.rol)+'<label>Pestañas</label>'+chkPest('ue',u.pestanas)+
+      h+='<div class="frm"><label for="ue-nombre">Nombre</label><input id="ue-nombre" type="text" value="'+esc(u.nombre)+'"><label for="ue-rol">Rol</label>'+selRol('ue-rol',u.rol)+'<label>Pestañas</label>'+chkPest('ue',u.pestanas)+
          '<div class="btnrow"><button type="button" class="btn primary sm" data-us-guardar="'+esc(u.usuario)+'">Guardar</button><button type="button" class="btn ghost sm" data-us-editar="">Cancelar</button></div></div>';
     } else {
       h+='<div class="btnrow" style="margin-top:6px"><button type="button" class="btn ghost sm" data-us-editar="'+esc(u.usuario)+'">Editar</button>'+(u.usuario===yo?'':'<button type="button" class="btn ghost sm" data-us-reiniciar="'+esc(u.usuario)+'">'+(u.activado?'Reiniciar contraseña':'Código nuevo')+'</button><button type="button" class="btn ghost sm" data-us-activo="'+esc(u.usuario)+'|'+(u.activo?'0':'1')+'">'+(u.activo?'Desactivar':'Activar')+'</button>')+'</div>';
@@ -1380,7 +1385,7 @@ function admUsuarios(A){
   return h;
 }
 function formClave(){
-  return '<div class="form" style="margin-top:10px"><h4>Cambiar mi contraseña</h4><label for="cl-actual">Contraseña actual</label><input id="cl-actual" type="password" autocomplete="current-password"><label for="cl-nueva">Contraseña nueva (mínimo 6)</label><input id="cl-nueva" type="password" autocomplete="new-password"><label for="cl-nueva2">Repite la nueva</label><input id="cl-nueva2" type="password" autocomplete="new-password"><div class="btnrow"><button type="button" class="btn primary sm" id="b-clave-ok">Cambiar</button><button type="button" class="btn ghost sm" data-form="">Cancelar</button></div></div>';
+  return '<div class="frm" style="margin-top:10px"><p class="frm-t">Cambiar mi contraseña</p><label for="cl-actual">Contraseña actual</label><input id="cl-actual" type="password" autocomplete="current-password"><label for="cl-nueva">Contraseña nueva (mínimo 6)</label><input id="cl-nueva" type="password" autocomplete="new-password"><label for="cl-nueva2">Repite la nueva</label><input id="cl-nueva2" type="password" autocomplete="new-password"><div class="btnrow"><button type="button" class="btn primary sm" id="b-clave-ok">Cambiar</button><button type="button" class="btn ghost sm" data-form="">Cancelar</button></div></div>';
 }
 function pestSel(pref){return PESTANAS.map(function(p){return p[0];}).filter(function(k){var e=$(pref+'-'+k);return e&&e.checked;});}
 function usuariosAccion(t){
