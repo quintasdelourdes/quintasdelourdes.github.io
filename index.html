@@ -1389,7 +1389,7 @@ function botonRecibo(r,txt){
   var ruta=r.ruta||(r.pdf?'NOMINA NEDER/'+r.pdf:''); if(!ruta) return '';
   return '<button type="button" class="linkbtn" data-vruta="'+esc(ruta)+'" data-tit="Recibo de nómina '+esc(r.num||r.periodo||'')+'">'+txt+'</button>';
 }
-/* --- v2.16: pantallazos del cuadre diario --- */
+/* --- v2.17: pantallazos del cuadre diario --- */
 function fechaHora(iso){if(!iso)return '';var s=String(iso),d=s.slice(0,10),t=s.slice(11,16);if(!t)return fechaCorta(d);var h=parseInt(t.slice(0,2),10),m=t.slice(3,5),ap=h>=12?'p. m.':'a. m.';h=h%12||12;return fechaCorta(d)+' '+h+':'+m+' '+ap;}
 function diasFaltan(ultimo){var out=[],d=new Date(ultimo+'T12:00:00'),hoy=hoyISO();for(var i=0;i<60;i++){d.setDate(d.getDate()+1);var iso=d.toISOString().slice(0,10);if(iso>=hoy)break;out.push(iso);}return out;}
 function admCuadre(A){
@@ -1600,7 +1600,7 @@ function admResumen(A,pend,pz){
   return h;
 }
 
-/* --- v2.16: reservas del salón social y la piscina, avisos, mis datos --- */
+/* --- v2.17: reservas del salón social y la piscina, avisos, mis datos --- */
 var ESPACIOS={salon:'Salón social',piscina:'Piscina'};
 var DIAS_SEM=['L','M','M','J','V','S','D'];
 function pesos(n){return fmt(n||0);}
@@ -1719,7 +1719,7 @@ function activarAvisos(doc,token){
 }
 try{ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){}); }catch(e){}
 
-/* --- v2.16: panel amigable (inicio con tarjetas) --- */
+/* --- v2.17: panel amigable (inicio con tarjetas) --- */
 var SEC={
   inicio:{t:'Inicio',ic:I.home,d:''},
   confirmar:{t:'Pagos por confirmar',ic:I.camera,d:'Pagos reportados por los propietarios y solicitudes de paz y salvo.'},
@@ -1779,7 +1779,7 @@ function admInicio(A){
 function etiqAdm(l){return String(l).indexOf('y')>0?'Lotes '+String(l).replace('y',' y '):'Lote '+l;}
 function admAyuda(k){var d=(SEC[k]||{}).d; return d?'<p class="small ayuda">'+esc(d)+'</p>':'';}
 
-/* --- v2.16: reservas en el panel --- */
+/* --- v2.17: reservas en el panel --- */
 function admReservas(A){
   var R=A.reservas||{reservas:[],canceladas:[],manana:[]}, hoy=R.hoy||hoyISO(), ym=S.rvMesAdm||ymDe(hoy);
   var occ={}; (R.reservas||[]).forEach(function(r){occ[r.espacio+'|'+r.fecha]=r;});
@@ -1820,7 +1820,7 @@ function reservasAdmAccion(t){
   return false;
 }
 
-/* --- v2.16: contabilidad (contadora y administración) --- */
+/* --- v2.17: contabilidad (contadora y administración) --- */
 function primerDiaMes(ym){return ym+'-01';}
 function ultimoDiaMes(ym){return ym+'-'+('0'+diasDe(ym)).slice(-2);}
 function tarjetaPresupuesto(PR){
@@ -1863,7 +1863,7 @@ function contaAccion(t){
   return false;
 }
 
-/* --- v2.16: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
+/* --- v2.17: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
 function admResumen(A,pend,pz){
   if(!S.estad){ llamar('estad',[S.pin,S.resMes||''],function(r){S.estad=r;S.resMes=r.ym;renderAdmin();},function(m){S.estad={error:m};renderAdmin();}); return '<div class="card in"><p class="empty">Cargando el resumen…</p></div>'; }
   if(S.estad.error) return '<div class="card in"><p class="err">'+esc(S.estad.error)+'</p><button type="button" class="btn ghost sm" data-adm-go="inicio">Volver</button></div>';
@@ -1878,7 +1878,7 @@ function admResumen(A,pend,pz){
   h+='<div class="tile"><span class="k">Cuentas pagadas</span><span class="v">'+(R.pagadas!=null?R.pagadas:0)+' de '+(R.lotes||0)+'</span><span class="small">'+(R.lotes_fisicos||89)+' lotes</span></div>';
   h+='<div class="tile"><span class="k">Sin deuda vencida</span><span class="v">'+(R.sin_vencido!=null?R.sin_vencido:'—')+' de '+(R.lotes||0)+'</span></div>';
   if(esAct){h+='<div class="tile"><span class="k">Por confirmar</span><span class="v">'+pend.length+'</span></div><div class="tile"><span class="k">Paz y salvos pedidos</span><span class="v">'+pz.length+'</span></div>';}
-  h+='</div>';h+='<p class="graf-t" style="margin-top:6px">Del mes en curso</p><div class="tiles">';h+='<div class="tile"><span class="k">Facturado del mes</span><span class="v">'+fmt(R.cuota_mes||0)+'</span><span class="small">solo la cuota, sin cartera vieja</span></div>';h+='<div class="tile"><span class="k">Pagado del mes</span><span class="v ok">'+fmt(R.entrado_mes||0)+'</span><span class="small">lo que entró este mes</span></div>';h+='<div class="tile"><span class="k">Cuota del mes cubierta</span><span class="v">'+fmt(R.cubierto_mes||0)+'</span><span class="small">'+Math.round(100*(R.cubierto_mes||0)/(R.cuota_mes||1))+'% de la cuota</span></div>';h+='</div>';h+='<p class="hint">Cifras de la plantilla del mes. Las 78 cuentas cubren los 89 lotes (4 cuentas de dos lotes y Uramelina).</p></div>';
+  h+='</div>';h+='<p class="graf-t" style="margin-top:6px">Del mes en curso</p><div class="tiles">';h+='<div class="tile"><span class="k">Facturado del mes</span><span class="v">'+fmt(R.cuota_mes||0)+'</span><span class="small">solo la cuota, sin cartera vieja</span></div>';h+='<div class="tile"><span class="k">Cuota del mes cubierta</span><span class="v">'+fmt(R.cubierto_mes||0)+'</span><span class="small">'+Math.round(100*(R.cubierto_mes||0)/(R.cuota_mes||1))+'% de la cuota</span></div>';h+='</div>';h+='<p class="hint">Cifras de la plantilla del mes. Las 78 cuentas cubren los 89 lotes (4 cuentas de dos lotes y Uramelina).</p></div>';
   h+=estadGraficas(E);
   h+=desatrasoPanel(E.desatraso);
   return h;
@@ -1935,7 +1935,7 @@ function desatrasoPanel(D){
   return h+'</div>';
 }
 
-/* --- v2.16: cuentas por pagar del mes (gastos fijos) --- */
+/* --- v2.17: cuentas por pagar del mes (gastos fijos) --- */
 function cuentasPorPagar(A){
   var D=S.cpp||A.cuentas_pagar; if(!D) return '';
   var ym=D.ym, R=D.resumen||{}, items=D.items||[], tope=(A.cuentas_pagar&&A.cuentas_pagar.ym)||ym, ver=soloVer('facturas');
@@ -1992,7 +1992,7 @@ document.addEventListener('change',function(e){
   if(el.id==='nom-cmp-file'){var num=S.nomCmpNum;var f=(el.files||[])[0];if(!f||!num)return;leerCaptura(f,function(x){llamar('nominaComprobante',[S.pin,S.quien,num,{b64:x.b64,nombre:x.nombre,mime:x.mime}],function(){S.nomCmpNum=null;recargarAdmin('Comprobante cargado para el recibo '+num+'.');},function(m){toast(m);});});el.value='';return;}
 });
 
-/* --- v2.16: faltas al reglamento, tareas del operario, comprobante de nómina --- */
+/* --- v2.17: faltas al reglamento, tareas del operario, comprobante de nómina --- */
 function esAdmin(){return S.perfil&&(S.perfil.rol==='admin'||S.perfil.rol==='coadmin');}
 function fotosPick(key,label){
   var P=S[key]||(S[key]={files:[]});
