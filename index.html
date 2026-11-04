@@ -538,7 +538,7 @@ footer{margin:18px 0 0;padding:0 0 96px;font-size:12px}
 @media (max-width:360px){.sec-grid,.ct-grid,.kpis{grid-template-columns:1fr}}
 .secnav{display:flex;align-items:center;gap:12px;margin:0 0 12px}
 .secnav .btn{width:auto;flex:0 0 auto}
-.secnav-t{font-size:18px;margin:0}.adm-top{padding:12px 14px;position:relative;z-index:5}.adm-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}.adm-who{min-width:0;display:grid;gap:1px}.adm-who strong{font-size:17px;line-height:1.15;letter-spacing:-.01em}.adm-who span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.adm-ic{display:flex;gap:6px;flex:none;align-items:center}.icbtn{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:38px;min-width:38px;padding:0 9px;border:1.5px solid var(--line);background:var(--soft);color:var(--ink);border-radius:11px;font:700 13px/1 inherit;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}.icbtn svg.i{width:18px;height:18px}.icbtn span{display:none}@media (min-width:700px){.icbtn span{display:inline}.icbtn{padding:0 12px}}.menu-wrap{position:relative}.menu{position:absolute;right:0;top:calc(100% + 6px);min-width:190px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:6px;z-index:60;display:grid;gap:2px}.menu[hidden]{display:none}.menu-it{display:flex;align-items:center;gap:9px;width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:10px 10px;border-radius:9px;font:600 14px/1.2 inherit;font-family:inherit;cursor:pointer}.menu-it svg.i{width:18px;height:18px;color:var(--muted)}.menu-it:hover,.menu-it:focus-visible{background:var(--soft)}.subtabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin:-4px 0 12px;padding:4px 2px}.subtabs::-webkit-scrollbar{display:none}.subtab{flex:0 0 auto;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 13px;font:700 13px/1 inherit;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;-webkit-tap-highlight-color:transparent}.subtab[aria-selected=true]{background:var(--navy);border-color:var(--navy);color:#fff}.subtab .badge{margin-left:3px;min-width:18px;height:18px;font-size:10.5px}.sec-d b{color:var(--bad);font-weight:800}
+.secnav-t{font-size:18px;margin:0}.adm-top{padding:12px 14px;position:relative;z-index:5}.adm-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}.adm-who{min-width:0;display:grid;gap:1px}.adm-who strong{font-size:17px;line-height:1.15;letter-spacing:-.01em}.adm-who span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.adm-ic{display:flex;gap:6px;flex:none;align-items:center}.icbtn{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:38px;min-width:38px;padding:0 9px;border:1.5px solid var(--line);background:var(--soft);color:var(--ink);border-radius:11px;font:700 13px/1 inherit;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}.icbtn svg.i{width:18px;height:18px}.icbtn span{display:none}@media (min-width:700px){.icbtn span{display:inline}.icbtn{padding:0 12px}}.menu-wrap{position:relative}.menu{position:absolute;right:0;top:calc(100% + 6px);min-width:190px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:6px;z-index:60;display:grid;gap:2px}.menu[hidden]{display:none}.menu-it{display:flex;align-items:center;gap:9px;width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:10px 10px;border-radius:9px;font:600 14px/1.2 inherit;font-family:inherit;cursor:pointer}.menu-it svg.i{width:18px;height:18px;color:var(--muted)}.menu-it:hover,.menu-it:focus-visible{background:var(--soft)}.subtabs{display:flex;flex-wrap:wrap;gap:7px;margin:-2px 0 12px;padding:2px 0}.subtabs::-webkit-scrollbar{display:none}.subtab{flex:0 1 auto;max-width:100%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 13px;font:700 13px/1 inherit;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;-webkit-tap-highlight-color:transparent}.subtab[aria-selected=true]{background:var(--navy);border-color:var(--navy);color:#fff}.subtab .badge{margin-left:3px;min-width:18px;height:18px;font-size:10.5px}.sec-d b{color:var(--bad);font-weight:800}
 .mes-sel{width:auto;flex:0 0 auto;font-size:13px;padding:7px 10px;border-radius:10px;max-width:60%}
 .graf-t{font-weight:800;font-size:13.5px;margin:14px 0 2px}
 .chart{overflow-x:auto;margin:4px 0}
@@ -1274,12 +1274,13 @@ function renderAdmin(){
   var h='<div class="card in adm-top"><div class="adm-bar"><div class="adm-who"><strong>Administración</strong><span class="small">'+(S.quien?'Hola, '+esc(S.quien)+' · ':'')+'datos del '+fechaCorta(A.generado).slice(0,5)+'</span></div><div class="adm-ic">'
     +(tiene('confirmar')?'<button type="button" class="icbtn" id="b-sync" aria-label="Sincronizar" title="Sincronizar"><svg class="i" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-13.9 5.4M4 12a8 8 0 0 1 13.9-5.4"/><path d="M18 2.5V7h-4.5M6 21.5V17h4.5"/></svg><span>Sincronizar</span></button>':'')
     +'<div class="menu-wrap"><button type="button" class="icbtn" id="b-menu" aria-label="Más opciones" title="Más opciones" aria-haspopup="true" aria-expanded="false"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg></button><div class="menu" id="adm-menu" hidden>'
+    +'<button type="button" class="menu-it" id="b-back">'+I.home+'Portal de propietarios</button>'
     +(usr?'<button type="button" class="menu-it" id="b-clave"><svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12 20 3M17 6l2.5 2.5M14.5 8.5 17 11"/></svg>'+(S.form==='clave'?'Cerrar contraseña':'Mi contraseña')+'</button>':'')
     +'<button type="button" class="menu-it" id="b-tema-m">'+(oscuro?'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Modo día':'<svg class="i" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Modo noche')+'</button>'
     +(usr?'<button type="button" class="menu-it" id="b-logout"><svg class="i" viewBox="0 0 24 24"><path d="M10 4H5v16h5"/><path d="M15 8l4 4-4 4M9 12h10"/></svg>Salir</button>':'')
-    +'</div></div><button type="button" class="icbtn" id="b-back" aria-label="Volver al portal" title="Volver al portal">'+I.back+'<span>Portal</span></button></div></div>'+(S.form==='clave'?formClave():'')+'</div>';
+    +'</div></div></div></div>'+(S.form==='clave'?formClave():'')+'</div>';
   var T=tabsPermitidas(); if(!T[S.admTab]) S.admTab='inicio';
-  if(!admTab('inicio')){var MD=moduloDe(S.admTab); h+='<div class="secnav"><button type="button" class="btn ghost sm" data-adm-go="inicio">'+I.back+'Inicio</button><h2 class="secnav-t">'+esc(MD?MD.t:(SEC[S.admTab]||{t:''}).t)+'</h2></div>'+barraSub();}
+  if(!admTab('inicio')){var MD=moduloDe(S.admTab); h+='<div class="secnav"><button type="button" class="btn ghost sm" data-adm-go="inicio">'+I.back+'Atrás</button><h2 class="secnav-t">'+esc(MD?MD.t:(SEC[S.admTab]||{t:''}).t)+'</h2></div>'+barraSub();}
   if(A.errorPanel) h+='<div class="warn-box">'+I.alert+'<span>No se pudieron leer los datos del panel: '+esc(A.errorPanel)+'</span></div>';
   if(admTab('inicio')) h+=admInicio(A);
   else if(admTab('reservas')) h+=admReservas(A);
@@ -1388,7 +1389,7 @@ function botonRecibo(r,txt){
   var ruta=r.ruta||(r.pdf?'NOMINA NEDER/'+r.pdf:''); if(!ruta) return '';
   return '<button type="button" class="linkbtn" data-vruta="'+esc(ruta)+'" data-tit="Recibo de nómina '+esc(r.num||r.periodo||'')+'">'+txt+'</button>';
 }
-/* --- v2.15: pantallazos del cuadre diario --- */
+/* --- v2.16: pantallazos del cuadre diario --- */
 function fechaHora(iso){if(!iso)return '';var s=String(iso),d=s.slice(0,10),t=s.slice(11,16);if(!t)return fechaCorta(d);var h=parseInt(t.slice(0,2),10),m=t.slice(3,5),ap=h>=12?'p. m.':'a. m.';h=h%12||12;return fechaCorta(d)+' '+h+':'+m+' '+ap;}
 function diasFaltan(ultimo){var out=[],d=new Date(ultimo+'T12:00:00'),hoy=hoyISO();for(var i=0;i<60;i++){d.setDate(d.getDate()+1);var iso=d.toISOString().slice(0,10);if(iso>=hoy)break;out.push(iso);}return out;}
 function admCuadre(A){
@@ -1599,7 +1600,7 @@ function admResumen(A,pend,pz){
   return h;
 }
 
-/* --- v2.15: reservas del salón social y la piscina, avisos, mis datos --- */
+/* --- v2.16: reservas del salón social y la piscina, avisos, mis datos --- */
 var ESPACIOS={salon:'Salón social',piscina:'Piscina'};
 var DIAS_SEM=['L','M','M','J','V','S','D'];
 function pesos(n){return fmt(n||0);}
@@ -1718,7 +1719,7 @@ function activarAvisos(doc,token){
 }
 try{ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){}); }catch(e){}
 
-/* --- v2.15: panel amigable (inicio con tarjetas) --- */
+/* --- v2.16: panel amigable (inicio con tarjetas) --- */
 var SEC={
   inicio:{t:'Inicio',ic:I.home,d:''},
   confirmar:{t:'Pagos por confirmar',ic:I.camera,d:'Pagos reportados por los propietarios y solicitudes de paz y salvo.'},
@@ -1778,7 +1779,7 @@ function admInicio(A){
 function etiqAdm(l){return String(l).indexOf('y')>0?'Lotes '+String(l).replace('y',' y '):'Lote '+l;}
 function admAyuda(k){var d=(SEC[k]||{}).d; return d?'<p class="small ayuda">'+esc(d)+'</p>':'';}
 
-/* --- v2.15: reservas en el panel --- */
+/* --- v2.16: reservas en el panel --- */
 function admReservas(A){
   var R=A.reservas||{reservas:[],canceladas:[],manana:[]}, hoy=R.hoy||hoyISO(), ym=S.rvMesAdm||ymDe(hoy);
   var occ={}; (R.reservas||[]).forEach(function(r){occ[r.espacio+'|'+r.fecha]=r;});
@@ -1819,7 +1820,7 @@ function reservasAdmAccion(t){
   return false;
 }
 
-/* --- v2.15: contabilidad (contadora y administración) --- */
+/* --- v2.16: contabilidad (contadora y administración) --- */
 function primerDiaMes(ym){return ym+'-01';}
 function ultimoDiaMes(ym){return ym+'-'+('0'+diasDe(ym)).slice(-2);}
 function tarjetaPresupuesto(PR){
@@ -1862,7 +1863,7 @@ function contaAccion(t){
   return false;
 }
 
-/* --- v2.15: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
+/* --- v2.16: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
 function admResumen(A,pend,pz){
   if(!S.estad){ llamar('estad',[S.pin,S.resMes||''],function(r){S.estad=r;S.resMes=r.ym;renderAdmin();},function(m){S.estad={error:m};renderAdmin();}); return '<div class="card in"><p class="empty">Cargando el resumen…</p></div>'; }
   if(S.estad.error) return '<div class="card in"><p class="err">'+esc(S.estad.error)+'</p><button type="button" class="btn ghost sm" data-adm-go="inicio">Volver</button></div>';
@@ -1934,7 +1935,7 @@ function desatrasoPanel(D){
   return h+'</div>';
 }
 
-/* --- v2.15: cuentas por pagar del mes (gastos fijos) --- */
+/* --- v2.16: cuentas por pagar del mes (gastos fijos) --- */
 function cuentasPorPagar(A){
   var D=S.cpp||A.cuentas_pagar; if(!D) return '';
   var ym=D.ym, R=D.resumen||{}, items=D.items||[], tope=(A.cuentas_pagar&&A.cuentas_pagar.ym)||ym, ver=soloVer('facturas');
@@ -1991,7 +1992,7 @@ document.addEventListener('change',function(e){
   if(el.id==='nom-cmp-file'){var num=S.nomCmpNum;var f=(el.files||[])[0];if(!f||!num)return;leerCaptura(f,function(x){llamar('nominaComprobante',[S.pin,S.quien,num,{b64:x.b64,nombre:x.nombre,mime:x.mime}],function(){S.nomCmpNum=null;recargarAdmin('Comprobante cargado para el recibo '+num+'.');},function(m){toast(m);});});el.value='';return;}
 });
 
-/* --- v2.15: faltas al reglamento, tareas del operario, comprobante de nómina --- */
+/* --- v2.16: faltas al reglamento, tareas del operario, comprobante de nómina --- */
 function esAdmin(){return S.perfil&&(S.perfil.rol==='admin'||S.perfil.rol==='coadmin');}
 function fotosPick(key,label){
   var P=S[key]||(S[key]={files:[]});
