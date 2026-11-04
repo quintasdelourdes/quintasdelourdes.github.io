@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Portal Quintas de Lourdes</title>
 <meta name="description" content="Portal de propietarios de la Urbanización Quintas de Lourdes P.H. (Apartadó): estado de cuenta, datos de pago, reporte de pagos, recibos y paz y salvo.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Quintas de Lourdes">
+<meta property="og:title" content="Portal de propietarios · Quintas de Lourdes">
+<meta property="og:description" content="Consulta tu estado de cuenta, paga en línea, reporta tu pago y descarga recibos y paz y salvos.">
+<meta property="og:url" content="https://quintasdelourdes.github.io">
+<meta property="og:image" content="https://quintasdelourdes.github.io/og.png?v=1">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Portal de propietarios de Quintas de Lourdes">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Portal de propietarios · Quintas de Lourdes">
+<meta name="twitter:description" content="Consulta tu estado de cuenta, paga en línea, reporta tu pago y descarga recibos y paz y salvos.">
+<meta name="twitter:image" content="https://quintasdelourdes.github.io/og.png?v=1">
 <meta name="theme-color" content="#003C60">
 <script>(function(){try{var t=localStorage.getItem('qdl_tema');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1389,7 +1403,7 @@ function botonRecibo(r,txt){
   var ruta=r.ruta||(r.pdf?'NOMINA NEDER/'+r.pdf:''); if(!ruta) return '';
   return '<button type="button" class="linkbtn" data-vruta="'+esc(ruta)+'" data-tit="Recibo de nómina '+esc(r.num||r.periodo||'')+'">'+txt+'</button>';
 }
-/* --- v2.18: pantallazos del cuadre diario --- */
+/* --- v2.20: pantallazos del cuadre diario --- */
 function fechaHora(iso){if(!iso)return '';var s=String(iso),d=s.slice(0,10),t=s.slice(11,16);if(!t)return fechaCorta(d);var h=parseInt(t.slice(0,2),10),m=t.slice(3,5),ap=h>=12?'p. m.':'a. m.';h=h%12||12;return fechaCorta(d)+' '+h+':'+m+' '+ap;}
 function diasFaltan(ultimo){var out=[],d=new Date(ultimo+'T12:00:00'),hoy=hoyISO();for(var i=0;i<60;i++){d.setDate(d.getDate()+1);var iso=d.toISOString().slice(0,10);if(iso>=hoy)break;out.push(iso);}return out;}
 function admCuadre(A){
@@ -1469,7 +1483,7 @@ function admEgresos(A){
 function formEgreso(){
   var F=S.f||{};
   return '<form class="frm" id="f-egreso" novalidate><p class="frm-t">Registrar un gasto</p>'+
-    '<div class="g2"><div class="field"><label for="e-fecha">Fecha</label><input id="e-fecha" type="date" max="'+hoyISO()+'" value="'+esc(F.fecha||hoyISO())+'"></div><div class="field"><label for="e-valor">Valor</label><input id="e-valor" class="money-in" type="text" inputmode="numeric" placeholder="$0" value="'+esc(F.valor?miles(F.valor):'')+'"></div></div>'+'<div class="field"><label for="e-forma">¿De dónde salió el dinero?</label><select id="e-forma"><option value="banco"'+((F.forma||'banco')==='banco'?' selected':'')+'>Del banco (se cruza con el banco)</option><option value="efectivo"'+(F.forma==='efectivo'?' selected':'')+'>En efectivo</option></select></div>'+
+    '<div class="g2"><div class="field"><label for="e-fecha">Fecha</label><input id="e-fecha" type="date" max="'+hoyISO()+'" value="'+esc(F.fecha||fechaDefMes(S.egMes))+'"></div><div class="field"><label for="e-valor">Valor</label><input id="e-valor" class="money-in" type="text" inputmode="numeric" placeholder="$0" value="'+esc(F.valor?miles(F.valor):'')+'"></div></div>'+'<div class="field"><label for="e-forma">¿De dónde salió el dinero?</label><select id="e-forma"><option value="banco"'+((F.forma||'banco')==='banco'?' selected':'')+'>Del banco (se cruza con el banco)</option><option value="efectivo"'+(F.forma==='efectivo'?' selected':'')+'>En efectivo</option></select></div>'+
     '<div class="field"><label for="e-cat">Categoría</label><select id="e-cat"><option value="">Elige…</option>'+CATS.map(function(c){return '<option'+(F.cat===c?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div>'+
     '<div class="field"><label for="e-prov">Proveedor o a quién se pagó</label><input id="e-prov" type="text" value="'+esc(F.prov||'')+'"></div>'+
     '<div class="field"><label for="e-desc">Descripción</label><input id="e-desc" type="text" placeholder="Ej.: arreglo de la bomba de agua" value="'+esc(F.desc||'')+'"></div>'+
@@ -1600,7 +1614,7 @@ function admResumen(A,pend,pz){
   return h;
 }
 
-/* --- v2.18: reservas del salón social y la piscina, avisos, mis datos --- */
+/* --- v2.20: reservas del salón social y la piscina, avisos, mis datos --- */
 var ESPACIOS={salon:'Salón social',piscina:'Piscina'};
 var DIAS_SEM=['L','M','M','J','V','S','D'];
 function pesos(n){return fmt(n||0);}
@@ -1719,7 +1733,7 @@ function activarAvisos(doc,token){
 }
 try{ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){}); }catch(e){}
 
-/* --- v2.18: panel amigable (inicio con tarjetas) --- */
+/* --- v2.20: panel amigable (inicio con tarjetas) --- */
 var SEC={
   inicio:{t:'Inicio',ic:I.home,d:''},
   confirmar:{t:'Pagos por confirmar',ic:I.camera,d:'Pagos reportados por los propietarios y solicitudes de paz y salvo.'},
@@ -1780,7 +1794,7 @@ function admInicio(A){
 function etiqAdm(l){return String(l).indexOf('y')>0?'Lotes '+String(l).replace('y',' y '):'Lote '+l;}
 function admAyuda(k){var d=(SEC[k]||{}).d; return d?'<p class="small ayuda">'+esc(d)+'</p>':'';}
 
-/* --- v2.18: reservas en el panel --- */
+/* --- v2.20: reservas en el panel --- */
 function admReservas(A){
   var R=A.reservas||{reservas:[],canceladas:[],manana:[]}, hoy=R.hoy||hoyISO(), ym=S.rvMesAdm||ymDe(hoy);
   var occ={}; (R.reservas||[]).forEach(function(r){occ[r.espacio+'|'+r.fecha]=r;});
@@ -1821,7 +1835,7 @@ function reservasAdmAccion(t){
   return false;
 }
 
-/* --- v2.18: contabilidad (contadora y administración) --- */
+/* --- v2.20: contabilidad (contadora y administración) --- */
 function primerDiaMes(ym){return ym+'-01';}
 function ultimoDiaMes(ym){return ym+'-'+('0'+diasDe(ym)).slice(-2);}
 function tarjetaPresupuesto(PR){
@@ -1864,7 +1878,7 @@ function contaAccion(t){
   return false;
 }
 
-/* --- v2.18: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
+/* --- v2.20: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
 function admResumen(A,pend,pz){
   if(!S.estad){ llamar('estad',[S.pin,S.resMes||''],function(r){S.estad=r;S.resMes=r.ym;renderAdmin();},function(m){S.estad={error:m};renderAdmin();}); return '<div class="card in"><p class="empty">Cargando el resumen…</p></div>'; }
   if(S.estad.error) return '<div class="card in"><p class="err">'+esc(S.estad.error)+'</p><button type="button" class="btn ghost sm" data-adm-go="inicio">Volver</button></div>';
@@ -1936,7 +1950,7 @@ function desatrasoPanel(D){
   return h+'</div>';
 }
 
-/* --- v2.18: cuentas por pagar del mes (gastos fijos) --- */
+/* --- v2.20: cuentas por pagar del mes (gastos fijos) --- */
 function cuentasPorPagar(A){
   var D=S.cpp||A.cuentas_pagar; if(!D) return '';
   var ym=D.ym, R=D.resumen||{}, items=D.items||[], tope=(A.cuentas_pagar&&A.cuentas_pagar.ym)||ym, ver=soloVer('facturas');
@@ -1959,9 +1973,12 @@ function cppRow(it,ym,ver){
   }
   return '<div class="eg"><div class="ic'+(it.estado==='pagado'?' ok':it.estado==='factura'?' q':' x')+'">'+icon+'</div><div class="eg-main"><p class="t">'+esc(it.nombre)+'</p><p class="d">'+sub+'</p>'+acc+'</div><div style="display:grid;justify-items:end;gap:4px"><span class="v">'+val+'</span>'+chip+'</div></div>';
 }
+function finMes(ym){var y=+String(ym).slice(0,4),m=+String(ym).slice(5,7);return ym+'-'+('0'+new Date(y,m,0).getDate()).slice(-2);}
+function fechaDefMes(ym,dia){if(!ym||ym>=ymHoy())return hoyISO();var f=dia?(ym+'-'+('0'+dia).slice(-2)):finMes(ym);return f>hoyISO()?hoyISO():f;}
 function cppForm(it){
   var o=S.cppOpen;
-  if(o.modo==='pago') return '<div class="frm" style="margin-top:8px"><p class="frm-t">Registrar pago · '+esc(it.nombre)+'</p><div class="g2"><div class="field"><label for="cpp-val">Valor</label><input id="cpp-val" class="money-in" inputmode="numeric" placeholder="$0" value="'+(it.valor_estimado?miles(it.valor_estimado):'')+'"></div><div class="field"><label for="cpp-fecha">Fecha</label><input id="cpp-fecha" type="date" value="'+hoyISO()+'" max="'+hoyISO()+'"></div></div><div class="field"><label for="cpp-forma">¿De dónde salió?</label><select id="cpp-forma"><option value="banco">Del banco</option><option value="efectivo">En efectivo</option></select></div><div class="field"><label for="cpp-file">Soporte (opcional: foto o PDF)</label><input id="cpp-file" type="file" accept="image/*,application/pdf" data-adj="1"></div><p id="f-err" class="err" hidden></p><div class="btnrow"><button type="button" class="btn primary sm" data-cpp-pay="'+it.id+'">Guardar pago</button><button type="button" class="btn ghost sm" data-cpp-cancel="1">Cancelar</button></div><p class="small" style="margin:6px 0 0">Queda registrado como gasto (categoría '+esc(it.categoria)+') y aparece en Gastos y Contabilidad.</p></div>';
+  var ymV=(S.cpp||(S.admin&&S.admin.cuentas_pagar)||{}).ym||ymHoy();
+  if(o.modo==='pago') return '<div class="frm" style="margin-top:8px"><p class="frm-t">Registrar pago · '+esc(it.nombre)+'</p><div class="g2"><div class="field"><label for="cpp-val">Valor</label><input id="cpp-val" class="money-in" inputmode="numeric" placeholder="$0" value="'+(it.valor_estimado?miles(it.valor_estimado):'')+'"></div><div class="field"><label for="cpp-fecha">Fecha</label><input id="cpp-fecha" type="date" value="'+fechaDefMes(ymV,it.dia)+'" min="'+ymV+'-01" max="'+(ymV>=ymHoy()?hoyISO():finMes(ymV))+'"></div></div><div class="field"><label for="cpp-forma">¿De dónde salió?</label><select id="cpp-forma"><option value="banco">Del banco</option><option value="efectivo">En efectivo</option></select></div><div class="field"><label for="cpp-file">Soporte (opcional: foto o PDF)</label><input id="cpp-file" type="file" accept="image/*,application/pdf" data-adj="1"></div><p id="f-err" class="err" hidden></p><div class="btnrow"><button type="button" class="btn primary sm" data-cpp-pay="'+it.id+'">Guardar pago</button><button type="button" class="btn ghost sm" data-cpp-cancel="1">Cancelar</button></div><p class="small" style="margin:6px 0 0">Queda registrado como gasto (categoría '+esc(it.categoria)+') y aparece en Gastos y Contabilidad.</p></div>';
   return '<div class="frm" style="margin-top:8px"><p class="frm-t">Cargar factura · '+esc(it.nombre)+'</p><div class="field"><label for="cpp-file">Factura (foto o PDF)</label><input id="cpp-file" type="file" accept="image/*,application/pdf" data-adj="1"></div><div class="field"><label for="cpp-val">Valor (opcional)</label><input id="cpp-val" class="money-in" inputmode="numeric" placeholder="$0"></div><div class="field"><label for="cpp-nota">Nota (opcional)</label><input id="cpp-nota" type="text" placeholder="Ej.: energía zonas comunes"></div><p id="f-err" class="err" hidden></p><div class="btnrow"><button type="button" class="btn primary sm" data-cpp-fac="'+it.id+'">Guardar factura</button><button type="button" class="btn ghost sm" data-cpp-cancel="1">Cancelar</button></div><p class="small" style="margin:6px 0 0">Queda "por pagar" hasta que registres el pago.</p></div>';
 }
 function cppEditor(items){
@@ -1993,7 +2010,7 @@ document.addEventListener('change',function(e){
   if(el.id==='nom-cmp-file'){var num=S.nomCmpNum;var f=(el.files||[])[0];if(!f||!num)return;leerCaptura(f,function(x){llamar('nominaComprobante',[S.pin,S.quien,num,{b64:x.b64,nombre:x.nombre,mime:x.mime}],function(){S.nomCmpNum=null;recargarAdmin('Comprobante cargado para el recibo '+num+'.');},function(m){toast(m);});});el.value='';return;}
 });
 
-/* --- v2.18: faltas al reglamento, tareas del operario, comprobante de nómina --- */
+/* --- v2.20: faltas al reglamento, tareas del operario, comprobante de nómina --- */
 function esAdmin(){return S.perfil&&(S.perfil.rol==='admin'||S.perfil.rol==='coadmin');}
 function fotosPick(key,label){
   var P=S[key]||(S[key]={files:[]});
