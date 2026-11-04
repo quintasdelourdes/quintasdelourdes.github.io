@@ -538,7 +538,7 @@ footer{margin:18px 0 0;padding:0 0 96px;font-size:12px}
 @media (max-width:360px){.sec-grid,.ct-grid,.kpis{grid-template-columns:1fr}}
 .secnav{display:flex;align-items:center;gap:12px;margin:0 0 12px}
 .secnav .btn{width:auto;flex:0 0 auto}
-.secnav-t{font-size:18px;margin:0}
+.secnav-t{font-size:18px;margin:0}.adm-top{padding:12px 14px;position:relative;z-index:5}.adm-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}.adm-who{min-width:0;display:grid;gap:1px}.adm-who strong{font-size:17px;line-height:1.15;letter-spacing:-.01em}.adm-who span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.adm-ic{display:flex;gap:6px;flex:none;align-items:center}.icbtn{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:38px;min-width:38px;padding:0 9px;border:1.5px solid var(--line);background:var(--soft);color:var(--ink);border-radius:11px;font:700 13px/1 inherit;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}.icbtn svg.i{width:18px;height:18px}.icbtn span{display:none}@media (min-width:700px){.icbtn span{display:inline}.icbtn{padding:0 12px}}.menu-wrap{position:relative}.menu{position:absolute;right:0;top:calc(100% + 6px);min-width:190px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:6px;z-index:60;display:grid;gap:2px}.menu[hidden]{display:none}.menu-it{display:flex;align-items:center;gap:9px;width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:10px 10px;border-radius:9px;font:600 14px/1.2 inherit;font-family:inherit;cursor:pointer}.menu-it svg.i{width:18px;height:18px;color:var(--muted)}.menu-it:hover,.menu-it:focus-visible{background:var(--soft)}.subtabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin:-4px 0 12px;padding:4px 2px}.subtabs::-webkit-scrollbar{display:none}.subtab{flex:0 0 auto;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 13px;font:700 13px/1 inherit;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;-webkit-tap-highlight-color:transparent}.subtab[aria-selected=true]{background:var(--navy);border-color:var(--navy);color:#fff}.subtab .badge{margin-left:3px;min-width:18px;height:18px;font-size:10.5px}.sec-d b{color:var(--bad);font-weight:800}
 .mes-sel{width:auto;flex:0 0 auto;font-size:13px;padding:7px 10px;border-radius:10px;max-width:60%}
 .graf-t{font-weight:800;font-size:13.5px;margin:14px 0 2px}
 .chart{overflow-x:auto;margin:4px 0}
@@ -1259,7 +1259,7 @@ function tabsPermitidas(){
   var A=S.admin||{}, pend=(A.reportes||[]).filter(function(r){return r.estado==='verificacion';}), pz=(A.solicitudes||[]).filter(function(q){return q.estado==='pendiente'||q.estado==='aprobada';});
   var nFac=(A.facturas||[]).filter(function(f){return f.estado!=='pagada';}).length+(A.correo||[]).filter(function(c){return c.tipo==='factura'&&c.estado==='nuevo';}).length;
   var P=pendientesDe(A);
-  var T={inicio:'Inicio',confirmar:'Pagos'+(P.confirmar?'<span class="badge">'+P.confirmar+'</span>':''),cuadre:'Banco'+(P.cuadre?'<span class="badge">'+P.cuadre+'</span>':''),egresos:'Gastos',facturas:'Facturas'+(P.facturas?'<span class="badge">'+P.facturas+'</span>':''),nomina:'Nómina',resumen:'Resumen',reservas:'Reservas'+(P.reservas?'<span class="badge">'+P.reservas+'</span>':''),faltas:'Faltas'+(P.faltas?'<span class="badge">'+P.faltas+'</span>':''),tareas:'Tareas'+(P.tareas?'<span class="badge">'+P.tareas+'</span>':''),directorio:'Directorio',anotaciones:'Anotaciones'+(P.anotaciones?'<span class="badge">'+P.anotaciones+'</span>':''),agua:'Agua'+(P.agua?'<span class="badge">'+P.agua+'</span>':''),contabilidad:'Contabilidad',usuarios:'Usuarios'};
+  var T={inicio:'Inicio',confirmar:'Pagos'+(P.confirmar?'<span class="badge">'+P.confirmar+'</span>':''),cuadre:'Banco'+(P.cuadre?'<span class="badge">'+P.cuadre+'</span>':''),egresos:'Gastos',facturas:'Facturas'+(P.facturas?'<span class="badge">'+P.facturas+'</span>':''),nomina:'Nómina',resumen:'Resumen',reservas:'Reservas'+(P.reservas?'<span class="badge">'+P.reservas+'</span>':''),faltas:'Faltas'+(P.faltas?'<span class="badge">'+P.faltas+'</span>':''),tareas:'Tareas'+(P.tareas?'<span class="badge">'+P.tareas+'</span>':''),directorio:'Directorio',anotaciones:'Anotaciones'+(P.anotaciones?'<span class="badge">'+P.anotaciones+'</span>':''),agua:'Agua'+(P.agua?'<span class="badge">'+P.agua+'</span>':''),contabilidad:'Informes',usuarios:'Usuarios'};
   var out={}; Object.keys(T).forEach(function(k){ if(k==='inicio') out[k]=T[k]; else if(k==='usuarios'){ if(A.usuarios) out[k]=T[k]; } else if(k==='reservas'){ if(A.reservas) out[k]=T[k]; } else if(k==='contabilidad'){ if(A.conta) out[k]=T[k]; } else if(k==='faltas'){ if(A.faltas) out[k]=T[k]; } else if(k==='tareas'){ if(A.tareas) out[k]=T[k]; } else if(k==='directorio'){ if(A.directorio) out[k]=T[k]; } else if(k==='anotaciones'){ if(A.anotaciones) out[k]=T[k]; } else if(k==='agua'){ if(A.agua) out[k]=T[k]; } else if(tiene(k)) out[k]=T[k]; });
   return out;
 }
@@ -1270,9 +1270,16 @@ function renderAdmin(){
   var A=S.admin, pend=A.reportes.filter(function(r){return r.estado==='verificacion';}), pz=A.solicitudes.filter(function(q){return q.estado==='pendiente'||q.estado==='aprobada';});
   var nFac=(A.facturas||[]).filter(function(f){return f.estado!=='pagada';}).length+(A.correo||[]).filter(function(c){return c.tipo==='factura'&&c.estado==='nuevo';}).length;
   var usr=S.perfil&&S.perfil.tipo==='usuario';
-  var h='<div class="card in"><div class="admin-head"><div><h2>Administración</h2><p class="small" style="margin:2px 0 0">'+(S.quien?'Hola, '+esc(S.quien)+' · ':'')+'datos del '+fechaCorta(A.generado)+'</p></div><button type="button" class="btn ghost sm" id="b-back" style="width:auto;flex:0 0 auto">'+I.back+'Portal</button></div><div class="btnrow adm-acts">'+(usr?'<button type="button" class="btn ghost sm" id="b-clave">'+(S.form==='clave'?'Cerrar':'Mi contraseña')+'</button><button type="button" class="btn ghost sm" id="b-logout">Salir</button>':'')+(tiene('confirmar')?'<button type="button" class="btn ghost sm" id="b-sync">Sincronizar</button>':'')+'</div>'+(S.form==='clave'?formClave():'')+'</div>';
+  var oscuro=(document.documentElement.getAttribute('data-theme')||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'))==='dark';
+  var h='<div class="card in adm-top"><div class="adm-bar"><div class="adm-who"><strong>Administración</strong><span class="small">'+(S.quien?'Hola, '+esc(S.quien)+' · ':'')+'datos del '+fechaCorta(A.generado).slice(0,5)+'</span></div><div class="adm-ic">'
+    +(tiene('confirmar')?'<button type="button" class="icbtn" id="b-sync" aria-label="Sincronizar" title="Sincronizar"><svg class="i" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-13.9 5.4M4 12a8 8 0 0 1 13.9-5.4"/><path d="M18 2.5V7h-4.5M6 21.5V17h4.5"/></svg><span>Sincronizar</span></button>':'')
+    +'<div class="menu-wrap"><button type="button" class="icbtn" id="b-menu" aria-label="Más opciones" title="Más opciones" aria-haspopup="true" aria-expanded="false"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg></button><div class="menu" id="adm-menu" hidden>'
+    +(usr?'<button type="button" class="menu-it" id="b-clave"><svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12 20 3M17 6l2.5 2.5M14.5 8.5 17 11"/></svg>'+(S.form==='clave'?'Cerrar contraseña':'Mi contraseña')+'</button>':'')
+    +'<button type="button" class="menu-it" id="b-tema-m">'+(oscuro?'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Modo día':'<svg class="i" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Modo noche')+'</button>'
+    +(usr?'<button type="button" class="menu-it" id="b-logout"><svg class="i" viewBox="0 0 24 24"><path d="M10 4H5v16h5"/><path d="M15 8l4 4-4 4M9 12h10"/></svg>Salir</button>':'')
+    +'</div></div><button type="button" class="icbtn" id="b-back" aria-label="Volver al portal" title="Volver al portal">'+I.back+'<span>Portal</span></button></div></div>'+(S.form==='clave'?formClave():'')+'</div>';
   var T=tabsPermitidas(); if(!T[S.admTab]) S.admTab='inicio';
-  if(!admTab('inicio')) h+='<div class="secnav"><button type="button" class="btn ghost sm" data-adm-go="inicio">'+I.back+'Inicio</button><h2 class="secnav-t">'+esc((SEC[S.admTab]||{t:''}).t)+'</h2></div>';
+  if(!admTab('inicio')){var MD=moduloDe(S.admTab); h+='<div class="secnav"><button type="button" class="btn ghost sm" data-adm-go="inicio">'+I.back+'Inicio</button><h2 class="secnav-t">'+esc(MD?MD.t:(SEC[S.admTab]||{t:''}).t)+'</h2></div>'+barraSub();}
   if(A.errorPanel) h+='<div class="warn-box">'+I.alert+'<span>No se pudieron leer los datos del panel: '+esc(A.errorPanel)+'</span></div>';
   if(admTab('inicio')) h+=admInicio(A);
   else if(admTab('reservas')) h+=admReservas(A);
@@ -1292,6 +1299,7 @@ function renderAdmin(){
   else h+='<div class="card in"><p class="empty">Tu usuario no tiene pestañas asignadas. Pídele a la administradora que te las active.</p></div>';
   $('v-admin').innerHTML=h;
   try{var tl=document.querySelector('.tablist.adm'),ta=tl&&tl.querySelector('.tab[aria-selected=true]');if(ta){var x=ta.offsetLeft-(tl.clientWidth-ta.offsetWidth)/2;tl.scrollLeft=Math.max(0,x);}}catch(e){}
+  try{var sl=document.querySelector('.subtabs'),sa=sl&&sl.querySelector('.subtab[aria-selected=true]');if(sa){var sx=sa.offsetLeft-(sl.clientWidth-sa.offsetWidth)/2;sl.scrollLeft=Math.max(0,sx);}}catch(e){}
   if(admTab('confirmar')){pintarConfirmados();pintarPaz();}
   if(admTab('nomina')&&S.form==='nomina') pintarNomina();
 }
@@ -1380,7 +1388,7 @@ function botonRecibo(r,txt){
   var ruta=r.ruta||(r.pdf?'NOMINA NEDER/'+r.pdf:''); if(!ruta) return '';
   return '<button type="button" class="linkbtn" data-vruta="'+esc(ruta)+'" data-tit="Recibo de nómina '+esc(r.num||r.periodo||'')+'">'+txt+'</button>';
 }
-/* --- v2.14: pantallazos del cuadre diario --- */
+/* --- v2.15: pantallazos del cuadre diario --- */
 function fechaHora(iso){if(!iso)return '';var s=String(iso),d=s.slice(0,10),t=s.slice(11,16);if(!t)return fechaCorta(d);var h=parseInt(t.slice(0,2),10),m=t.slice(3,5),ap=h>=12?'p. m.':'a. m.';h=h%12||12;return fechaCorta(d)+' '+h+':'+m+' '+ap;}
 function diasFaltan(ultimo){var out=[],d=new Date(ultimo+'T12:00:00'),hoy=hoyISO();for(var i=0;i<60;i++){d.setDate(d.getDate()+1);var iso=d.toISOString().slice(0,10);if(iso>=hoy)break;out.push(iso);}return out;}
 function admCuadre(A){
@@ -1591,7 +1599,7 @@ function admResumen(A,pend,pz){
   return h;
 }
 
-/* --- v2.14: reservas del salón social y la piscina, avisos, mis datos --- */
+/* --- v2.15: reservas del salón social y la piscina, avisos, mis datos --- */
 var ESPACIOS={salon:'Salón social',piscina:'Piscina'};
 var DIAS_SEM=['L','M','M','J','V','S','D'];
 function pesos(n){return fmt(n||0);}
@@ -1710,7 +1718,7 @@ function activarAvisos(doc,token){
 }
 try{ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){}); }catch(e){}
 
-/* --- v2.14: panel amigable (inicio con tarjetas) --- */
+/* --- v2.15: panel amigable (inicio con tarjetas) --- */
 var SEC={
   inicio:{t:'Inicio',ic:I.home,d:''},
   confirmar:{t:'Pagos por confirmar',ic:I.camera,d:'Pagos reportados por los propietarios y solicitudes de paz y salvo.'},
@@ -1720,7 +1728,7 @@ var SEC={
   nomina:{t:'Nómina',ic:I.receipt,d:'Recibos de nómina del operario.'},
   resumen:{t:'Resumen',ic:I.wallet,d:'Cómo va el mes: facturado, recaudado y cartera.'},
   reservas:{t:'Reservas',ic:I_CAL,d:'Salón social y piscina: calendario, depósitos y cancelaciones.'},
-  contabilidad:{t:'Contabilidad',ic:I.file,d:'Ingresos, cartera, gastos y propietarios en Excel.'},
+  contabilidad:{t:'Informes',ic:I.file,d:'Balance, ingresos, cartera, presupuesto, informe de gestión y descargas en Excel.'},
   usuarios:{t:'Usuarios',ic:I.shield,d:'Quién entra al panel y qué puede ver.'},
   faltas:{t:'Faltas y convivencia',ic:I.alert,d:'Reportes de faltas al reglamento, con foto. Aprobar, notificar al propietario y aplicar el correctivo.'},
   tareas:{t:'Tareas',ic:I.check,d:'Asignar tareas al operario y ver cómo van (con foto de evidencia).'},
@@ -1742,19 +1750,35 @@ function pendientesDe(A){
   p.agua=(A.agua&&A.agua.n_alertas)||0;
   return p;
 }
+var MODULOS=[
+  {id:'contabilidad',t:'Contabilidad',ic:I.wallet,tabs:['confirmar','cuadre','egresos','facturas','nomina','resumen','contabilidad']},
+  {id:'convivencia',t:'Convivencia',ic:I_CAL,tabs:['reservas','faltas','anotaciones','directorio']},
+  {id:'operacion',t:'Operación',ic:I.check,tabs:['tareas','agua']},
+  {id:'administracion',t:'Administración',ic:I.shield,tabs:['usuarios']}];
+var SUBT={confirmar:'Pagos',cuadre:'Banco',egresos:'Gastos',facturas:'Facturas',nomina:'Nómina',resumen:'Resumen',contabilidad:'Informes',reservas:'Reservas',faltas:'Faltas',anotaciones:'Anotaciones',directorio:'Directorio',tareas:'Tareas',agua:'Agua',usuarios:'Usuarios'};
+function moduloDe(tab){for(var i=0;i<MODULOS.length;i++) if(MODULOS[i].tabs.indexOf(tab)>=0) return MODULOS[i]; return null;}
+function modulosPermitidos(){var T=tabsPermitidas();return MODULOS.map(function(m){return {m:m,tabs:m.tabs.filter(function(k){return !!T[k];})};}).filter(function(x){return x.tabs.length>0;});}
+function subPestanaDe(mod){var x=modulosPermitidos().filter(function(y){return y.m.id===mod;})[0]; if(!x) return 'inicio'; var r=null; try{r=localStorage.getItem('qdl_sub_'+mod);}catch(e){} return (r&&x.tabs.indexOf(r)>=0)?r:x.tabs[0];}
+function irPestana(tab){S.admTab=tab;var m=moduloDe(tab);if(m){try{localStorage.setItem('qdl_sub_'+m.id,tab);}catch(e){}}renderAdmin();window.scrollTo(0,0);}
+function barraSub(){
+  var m=moduloDe(S.admTab); if(!m) return '';
+  var x=modulosPermitidos().filter(function(y){return y.m.id===m.id;})[0]; if(!x||x.tabs.length<2) return '';
+  var T=tabsPermitidas();
+  return '<div class="subtabs" role="tablist" aria-label="'+esc(m.t)+'">'+x.tabs.map(function(k){return '<button type="button" class="subtab" role="tab" data-adm-go="'+k+'" aria-selected="'+(S.admTab===k)+'">'+T[k]+'</button>';}).join('')+'</div>';
+}
 function admInicio(A){
   var P=pendientesDe(A), T=tabsPermitidas(), h='';
   var fr=[]; if(T.confirmar&&P.confirmar) fr.push(P.confirmar+(P.confirmar===1?' pago o solicitud por confirmar':' pagos o solicitudes por confirmar')); if(T.facturas&&P.facturas) fr.push(P.facturas+(P.facturas===1?' factura por pagar':' facturas por pagar')); if(T.cuadre&&P.cuadre) fr.push(P.cuadre+' pantallazo'+(P.cuadre===1?'':'s')+' nuevo'+(P.cuadre===1?'':'s')); if(T.reservas&&A.reservas&&(A.reservas.manana||[]).length) fr.push((A.reservas.manana||[]).length===1?'1 reserva mañana':(A.reservas.manana||[]).length+' reservas mañana');
   h+='<div class="card in"><p class="lead" style="margin:0">'+(fr.length?'Hoy tienes <strong>'+fr.join('</strong>, <strong>')+'</strong>.':'No tienes pendientes por ahora.')+'</p></div>';
   if(T.reservas&&A.reservas&&(A.reservas.manana||[]).length) h+='<div class="card in aviso-res"><div class="aviso-ico">'+I_CAL+'</div><div><strong>Mañana: '+A.reservas.manana.map(function(r){return esc(r.espacio_nombre)+' · '+esc(etiqAdm(r.lote))+' ('+esc(r.nombre)+')';}).join(' · ')+'</strong><p class="small" style="margin:2px 0 0"><button type="button" class="linkbtn" data-adm-go="reservas">Ver reservas</button></p></div></div>';
-  h+='<div class="sec-grid">'+Object.keys(T).filter(function(k){return k!=='inicio';}).map(function(k){var n=P[k]||0;return '<button type="button" class="sec-card" data-adm-go="'+k+'"><span class="sec-ic">'+SEC[k].ic+'</span><span class="sec-t">'+esc(SEC[k].t)+(n?'<span class="badge">'+n+'</span>':'')+'</span><span class="sec-d">'+esc(SEC[k].d)+'</span></button>';}).join('')+'</div>';
+  h+='<div class="sec-grid">'+modulosPermitidos().map(function(x){var n=0;x.tabs.forEach(function(k){n+=P[k]||0;});return '<button type="button" class="sec-card" data-adm-mod="'+x.m.id+'"><span class="sec-ic">'+x.m.ic+'</span><span class="sec-t">'+esc(x.m.t)+(n?'<span class="badge">'+n+'</span>':'')+'</span><span class="sec-d">'+x.tabs.map(function(k){var b=P[k]||0;return esc(SUBT[k])+(b?' <b>('+b+')</b>':'');}).join(' · ')+'</span></button>';}).join('')+'</div>';
   if(S.perfil&&S.perfil.tipo==='usuario') h+='<div class="card in"><p class="small" style="margin:0">'+(S.admin.push_activo?'Avisos activados en este teléfono.':'<button type="button" class="linkbtn" id="b-push-eq">'+I.alert+' Activar avisos en este teléfono</button> (reservas de mañana y novedades).')+'</p></div>';
   return h;
 }
 function etiqAdm(l){return String(l).indexOf('y')>0?'Lotes '+String(l).replace('y',' y '):'Lote '+l;}
 function admAyuda(k){var d=(SEC[k]||{}).d; return d?'<p class="small ayuda">'+esc(d)+'</p>':'';}
 
-/* --- v2.14: reservas en el panel --- */
+/* --- v2.15: reservas en el panel --- */
 function admReservas(A){
   var R=A.reservas||{reservas:[],canceladas:[],manana:[]}, hoy=R.hoy||hoyISO(), ym=S.rvMesAdm||ymDe(hoy);
   var occ={}; (R.reservas||[]).forEach(function(r){occ[r.espacio+'|'+r.fecha]=r;});
@@ -1780,7 +1804,10 @@ function admReservas(A){
   return h;
 }
 function reservasAdmAccion(t){
-  if(t.hasAttribute('data-adm-go')){S.admTab=t.getAttribute('data-adm-go');renderAdmin();window.scrollTo(0,0);return true;}
+  if(t.hasAttribute('data-adm-go')){irPestana(t.getAttribute('data-adm-go'));return true;}
+  if(t.hasAttribute('data-adm-mod')){irPestana(subPestanaDe(t.getAttribute('data-adm-mod')));return true;}
+  if(t.id==='b-menu'){var mn=$('adm-menu');if(mn){mn.hidden=!mn.hidden;t.setAttribute('aria-expanded',String(!mn.hidden));}return true;}
+  if(t.id==='b-tema-m'){var bt=$('b-tema');if(bt)bt.click();renderAdmin();return true;}
   if(t.hasAttribute('data-rva-mes')){S.rvMesAdm=sumarMes(S.rvMesAdm||ymDe(hoyISO()),parseInt(t.getAttribute('data-rva-mes'),10));renderAdmin();return true;}
   if(t.hasAttribute('data-rva')){
     var p=t.getAttribute('data-rva').split('|'), motivo='';
@@ -1792,7 +1819,7 @@ function reservasAdmAccion(t){
   return false;
 }
 
-/* --- v2.14: contabilidad (contadora y administración) --- */
+/* --- v2.15: contabilidad (contadora y administración) --- */
 function primerDiaMes(ym){return ym+'-01';}
 function ultimoDiaMes(ym){return ym+'-'+('0'+diasDe(ym)).slice(-2);}
 function tarjetaPresupuesto(PR){
@@ -1835,7 +1862,7 @@ function contaAccion(t){
   return false;
 }
 
-/* --- v2.14: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
+/* --- v2.15: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
 function admResumen(A,pend,pz){
   if(!S.estad){ llamar('estad',[S.pin,S.resMes||''],function(r){S.estad=r;S.resMes=r.ym;renderAdmin();},function(m){S.estad={error:m};renderAdmin();}); return '<div class="card in"><p class="empty">Cargando el resumen…</p></div>'; }
   if(S.estad.error) return '<div class="card in"><p class="err">'+esc(S.estad.error)+'</p><button type="button" class="btn ghost sm" data-adm-go="inicio">Volver</button></div>';
@@ -1907,7 +1934,7 @@ function desatrasoPanel(D){
   return h+'</div>';
 }
 
-/* --- v2.14: cuentas por pagar del mes (gastos fijos) --- */
+/* --- v2.15: cuentas por pagar del mes (gastos fijos) --- */
 function cuentasPorPagar(A){
   var D=S.cpp||A.cuentas_pagar; if(!D) return '';
   var ym=D.ym, R=D.resumen||{}, items=D.items||[], tope=(A.cuentas_pagar&&A.cuentas_pagar.ym)||ym, ver=soloVer('facturas');
@@ -1964,7 +1991,7 @@ document.addEventListener('change',function(e){
   if(el.id==='nom-cmp-file'){var num=S.nomCmpNum;var f=(el.files||[])[0];if(!f||!num)return;leerCaptura(f,function(x){llamar('nominaComprobante',[S.pin,S.quien,num,{b64:x.b64,nombre:x.nombre,mime:x.mime}],function(){S.nomCmpNum=null;recargarAdmin('Comprobante cargado para el recibo '+num+'.');},function(m){toast(m);});});el.value='';return;}
 });
 
-/* --- v2.14: faltas al reglamento, tareas del operario, comprobante de nómina --- */
+/* --- v2.15: faltas al reglamento, tareas del operario, comprobante de nómina --- */
 function esAdmin(){return S.perfil&&(S.perfil.rol==='admin'||S.perfil.rol==='coadmin');}
 function fotosPick(key,label){
   var P=S[key]||(S[key]={files:[]});
@@ -2461,6 +2488,7 @@ function enviarReporte(){
 
 document.addEventListener('click',function(e){
   var t=e.target.closest('button');
+  var mnu=$('adm-menu'); if(mnu&&!mnu.hidden&&!e.target.closest('.menu-wrap')){mnu.hidden=true;}
   if(e.target.id==='sheet-bg'){$('sheet').hidden=true;return;}
   if(!t) return;
   if(t.id==='b-sheet-close'){$('sheet').hidden=true;return;}
