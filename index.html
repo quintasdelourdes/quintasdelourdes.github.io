@@ -1265,7 +1265,7 @@ function activarUsuario(){
 }
 function salirAdmin(){
   var t=S.pin; guardarToken(''); S.pin=''; S.perfil=null; S.admin=null; S.form=null;
-  S.faForm=null;S.taForm=null;S.taEvid=null;S.faDec=null;S.faDecD=null;S.faTipos=false;S.cpp=null;S.estad=null;S.conta=null;S.nomCmpNum=null;S.faMias=null;S.autForm=null;S.anForm=null;S.agForm=null;S.dirQ='';S.dirN=0;
+  S.faForm=null;S.taForm=null;S.taEvid=null;S.faDec=null;S.faDecD=null;S.faTipos=false;S.cpp=null;S.estad=null;S.conta=null;S.nomCmpNum=null;S.faMias=null;S.autForm=null;S.anForm=null;S.novForm=null;S.agForm=null;S.dirQ='';S.dirN=0;
   if(t&&/^[0-9a-f]{48}$/.test(t)) llamar('salir',[t],function(){},function(){});
   toast('Sesión cerrada.'); cargarEquipo();
 }
@@ -1273,8 +1273,8 @@ function tabsPermitidas(){
   var A=S.admin||{}, pend=(A.reportes||[]).filter(function(r){return r.estado==='verificacion';}), pz=(A.solicitudes||[]).filter(function(q){return q.estado==='pendiente'||q.estado==='aprobada';});
   var nFac=(A.facturas||[]).filter(function(f){return f.estado!=='pagada';}).length+(A.correo||[]).filter(function(c){return c.tipo==='factura'&&c.estado==='nuevo';}).length;
   var P=pendientesDe(A);
-  var T={inicio:'Inicio',confirmar:'Pagos'+(P.confirmar?'<span class="badge">'+P.confirmar+'</span>':''),cuadre:'Banco'+(P.cuadre?'<span class="badge">'+P.cuadre+'</span>':''),egresos:'Gastos',facturas:'Facturas'+(P.facturas?'<span class="badge">'+P.facturas+'</span>':''),nomina:'Nómina',resumen:'Resumen',reservas:'Reservas'+(P.reservas?'<span class="badge">'+P.reservas+'</span>':''),faltas:'Faltas'+(P.faltas?'<span class="badge">'+P.faltas+'</span>':''),tareas:'Tareas'+(P.tareas?'<span class="badge">'+P.tareas+'</span>':''),directorio:'Directorio',anotaciones:'Anotaciones'+(P.anotaciones?'<span class="badge">'+P.anotaciones+'</span>':''),agua:'Agua'+(P.agua?'<span class="badge">'+P.agua+'</span>':''),contabilidad:'Informes',usuarios:'Usuarios'};
-  var out={}; Object.keys(T).forEach(function(k){ if(k==='inicio') out[k]=T[k]; else if(k==='usuarios'){ if(A.usuarios) out[k]=T[k]; } else if(k==='reservas'){ if(A.reservas) out[k]=T[k]; } else if(k==='contabilidad'){ if(A.conta) out[k]=T[k]; } else if(k==='faltas'){ if(A.faltas) out[k]=T[k]; } else if(k==='tareas'){ if(A.tareas) out[k]=T[k]; } else if(k==='directorio'){ if(A.directorio) out[k]=T[k]; } else if(k==='anotaciones'){ if(A.anotaciones) out[k]=T[k]; } else if(k==='agua'){ if(A.agua) out[k]=T[k]; } else if(tiene(k)) out[k]=T[k]; });
+  var T={inicio:'Inicio',confirmar:'Pagos'+(P.confirmar?'<span class="badge">'+P.confirmar+'</span>':''),cuadre:'Banco'+(P.cuadre?'<span class="badge">'+P.cuadre+'</span>':''),egresos:'Gastos',facturas:'Facturas'+(P.facturas?'<span class="badge">'+P.facturas+'</span>':''),nomina:'Nómina',resumen:'Resumen',reservas:'Reservas'+(P.reservas?'<span class="badge">'+P.reservas+'</span>':''),faltas:'Faltas'+(P.faltas?'<span class="badge">'+P.faltas+'</span>':''),tareas:'Tareas'+(P.tareas?'<span class="badge">'+P.tareas+'</span>':''),directorio:'Directorio',anotaciones:'Anotaciones'+(P.anotaciones?'<span class="badge">'+P.anotaciones+'</span>':''),agua:'Agua'+(P.agua?'<span class="badge">'+P.agua+'</span>':''),novedades:'Novedades'+(P.novedades?'<span class="badge">'+P.novedades+'</span>':''),contabilidad:'Informes',usuarios:'Usuarios'};
+  var out={}; Object.keys(T).forEach(function(k){ if(k==='inicio') out[k]=T[k]; else if(k==='usuarios'){ if(A.usuarios) out[k]=T[k]; } else if(k==='reservas'){ if(A.reservas) out[k]=T[k]; } else if(k==='contabilidad'){ if(A.conta) out[k]=T[k]; } else if(k==='faltas'){ if(A.faltas) out[k]=T[k]; } else if(k==='tareas'){ if(A.tareas) out[k]=T[k]; } else if(k==='directorio'){ if(A.directorio) out[k]=T[k]; } else if(k==='anotaciones'){ if(A.anotaciones) out[k]=T[k]; } else if(k==='agua'){ if(A.agua) out[k]=T[k]; } else if(k==='novedades'){ if(A.novedades) out[k]=T[k]; } else if(tiene(k)) out[k]=T[k]; });
   return out;
 }
 var CATS=['Nómina','Servicios públicos','Mantenimiento','Combustible','Aseo e insumos','Bancario','Vigilancia','Honorarios','Papelería','Seguros','Dotación','Impuestos','Otros'];
@@ -1303,6 +1303,7 @@ function renderAdmin(){
   else if(admTab('tareas')) h+=admTareas(A);
   else if(admTab('directorio')) h+=admDirectorio(A);
   else if(admTab('anotaciones')) h+=admAnotaciones(A);
+  else if(admTab('novedades')) h+=admNovedades(A);
   else if(admTab('agua')) h+=admAgua(A);
   else if(admTab('confirmar')) h+=admAyuda('confirmar')+admPendientes(A,pend,pz);
   else if(admTab('cuadre')) h+=admAyuda('cuadre')+admCuadre(A);
@@ -1403,7 +1404,7 @@ function botonRecibo(r,txt){
   var ruta=r.ruta||(r.pdf?'NOMINA NEDER/'+r.pdf:''); if(!ruta) return '';
   return '<button type="button" class="linkbtn" data-vruta="'+esc(ruta)+'" data-tit="Recibo de nómina '+esc(r.num||r.periodo||'')+'">'+txt+'</button>';
 }
-/* --- v2.23: pantallazos del cuadre diario --- */
+/* --- v2.24: pantallazos del cuadre diario --- */
 function fechaHora(iso){if(!iso)return '';var s=String(iso),d=s.slice(0,10),t=s.slice(11,16);if(!t)return fechaCorta(d);var h=parseInt(t.slice(0,2),10),m=t.slice(3,5),ap=h>=12?'p. m.':'a. m.';h=h%12||12;return fechaCorta(d)+' '+h+':'+m+' '+ap;}
 function diasFaltan(ultimo){var out=[],d=new Date(ultimo+'T12:00:00'),hoy=hoyISO();for(var i=0;i<60;i++){d.setDate(d.getDate()+1);var iso=d.toISOString().slice(0,10);if(iso>=hoy)break;out.push(iso);}return out;}
 function admCuadre(A){
@@ -1614,7 +1615,7 @@ function admResumen(A,pend,pz){
   return h;
 }
 
-/* --- v2.23: reservas del salón social y la piscina, avisos, mis datos --- */
+/* --- v2.24: reservas del salón social y la piscina, avisos, mis datos --- */
 var ESPACIOS={salon:'Salón social',piscina:'Piscina'};
 var DIAS_SEM=['L','M','M','J','V','S','D'];
 function pesos(n){return fmt(n||0);}
@@ -1733,7 +1734,7 @@ function activarAvisos(doc,token){
 }
 try{ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){}); }catch(e){}
 
-/* --- v2.23: panel amigable (inicio con tarjetas) --- */
+/* --- v2.24: panel amigable (inicio con tarjetas) --- */
 var SEC={
   inicio:{t:'Inicio',ic:I.home,d:''},
   confirmar:{t:'Pagos por confirmar',ic:I.camera,d:'Pagos reportados por los propietarios y solicitudes de paz y salvo.'},
@@ -1749,6 +1750,7 @@ var SEC={
   tareas:{t:'Tareas',ic:I.check,d:'Asignar tareas al operario y ver cómo van (con foto de evidencia).'},
   directorio:{t:'Directorio',ic:I.shield,d:'Propietario y teléfono por lote, y las personas autorizadas por cada propietario.'},
   anotaciones:{t:'Anotaciones',ic:I.alert,d:'Anomalías, novedades y solicitudes de la portería a la administración.'},
+  novedades:{t:'Novedades de operación',ic:I.doc,d:'Reportes del día a día de la operación (mantenimiento, construcción de lotes, contadores y servicios, seguridad), con foto. No son faltas ni tareas.'},
   agua:{t:'Agua',ic:I.drop,d:'Lectura del macromedidor (m³) con foto, mañana y tarde, con alerta de consumo alto.'}
 };
 function secTitulo(k){return (SEC[k]||{}).t||k;}
@@ -1762,15 +1764,16 @@ function pendientesDe(A){
   p.faltas=(A.faltas||[]).filter(function(f){return f.estado==='pendiente';}).length;
   p.tareas=(A.tareas||[]).filter(function(t){return t.estado==='pendiente';}).length;
   p.anotaciones=(A.anotaciones||[]).filter(function(a){return a.estado!=='atendida';}).length;
+  p.novedades=(A.novedades||[]).filter(function(n){return n.estado!=='atendida';}).length;
   p.agua=(A.agua&&A.agua.n_alertas)||0;
   return p;
 }
 var MODULOS=[
   {id:'contabilidad',t:'Contabilidad',ic:I.wallet,tabs:['confirmar','cuadre','egresos','facturas','nomina','resumen','contabilidad']},
   {id:'convivencia',t:'Convivencia',ic:I_CAL,tabs:['reservas','faltas','anotaciones','directorio']},
-  {id:'operacion',t:'Operación',ic:I.check,tabs:['tareas','agua']},
+  {id:'operacion',t:'Operación',ic:I.check,tabs:['tareas','novedades','agua']},
   {id:'administracion',t:'Administración',ic:I.shield,tabs:['usuarios']}];
-var SUBT={confirmar:'Pagos',cuadre:'Banco',egresos:'Gastos',facturas:'Facturas',nomina:'Nómina',resumen:'Resumen',contabilidad:'Informes',reservas:'Reservas',faltas:'Faltas',anotaciones:'Anotaciones',directorio:'Directorio',tareas:'Tareas',agua:'Agua',usuarios:'Usuarios'};
+var SUBT={confirmar:'Pagos',cuadre:'Banco',egresos:'Gastos',facturas:'Facturas',nomina:'Nómina',resumen:'Resumen',contabilidad:'Informes',reservas:'Reservas',faltas:'Faltas',anotaciones:'Anotaciones',directorio:'Directorio',tareas:'Tareas',novedades:'Novedades',agua:'Agua',usuarios:'Usuarios'};
 function moduloDe(tab){for(var i=0;i<MODULOS.length;i++) if(MODULOS[i].tabs.indexOf(tab)>=0) return MODULOS[i]; return null;}
 function modulosPermitidos(){var T=tabsPermitidas();return MODULOS.map(function(m){return {m:m,tabs:m.tabs.filter(function(k){return !!T[k];})};}).filter(function(x){return x.tabs.length>0;});}
 function subPestanaDe(mod){var x=modulosPermitidos().filter(function(y){return y.m.id===mod;})[0]; if(!x) return 'inicio'; var r=null; try{r=localStorage.getItem('qdl_sub_'+mod);}catch(e){} return (r&&x.tabs.indexOf(r)>=0)?r:x.tabs[0];}
@@ -1779,7 +1782,7 @@ function barraSub(){
   var m=moduloDe(S.admTab); if(!m) return '';
   var x=modulosPermitidos().filter(function(y){return y.m.id===m.id;})[0]; if(!x||x.tabs.length<2) return '';
   var T=tabsPermitidas();
-  var SUBIC={confirmar:I.check,cuadre:I.bank,egresos:I.out,facturas:I.mail,nomina:I.receipt,resumen:I.wallet,contabilidad:I.file,reservas:I_CAL,faltas:I.alert,anotaciones:I.info,directorio:I.phone,tareas:I.check,agua:I.drop,usuarios:I.shield};
+  var SUBIC={confirmar:I.check,cuadre:I.bank,egresos:I.out,facturas:I.mail,nomina:I.receipt,resumen:I.wallet,contabilidad:I.file,reservas:I_CAL,faltas:I.alert,anotaciones:I.info,directorio:I.phone,tareas:I.check,novedades:I.doc,agua:I.drop,usuarios:I.shield};
   return '<div class="subtabs" role="tablist" aria-label="'+esc(m.t)+'">'+x.tabs.map(function(k){return '<button type="button" class="subtab" role="tab" data-adm-go="'+k+'" aria-selected="'+(S.admTab===k)+'"><span class="subic">'+(SUBIC[k]||'')+'</span><span class="sublbl">'+T[k]+'</span></button>';}).join('')+'</div>';
 }
 function admInicio(A){
@@ -1794,7 +1797,7 @@ function admInicio(A){
 function etiqAdm(l){return String(l).indexOf('y')>0?'Lotes '+String(l).replace('y',' y '):'Lote '+l;}
 function admAyuda(k){var d=(SEC[k]||{}).d; return d?'<p class="small ayuda">'+esc(d)+'</p>':'';}
 
-/* --- v2.23: reservas en el panel --- */
+/* --- v2.24: reservas en el panel --- */
 function admReservas(A){
   var R=A.reservas||{reservas:[],canceladas:[],manana:[]}, hoy=R.hoy||hoyISO(), ym=S.rvMesAdm||ymDe(hoy);
   var occ={}; (R.reservas||[]).forEach(function(r){occ[r.espacio+'|'+r.fecha]=r;});
@@ -1835,7 +1838,7 @@ function reservasAdmAccion(t){
   return false;
 }
 
-/* --- v2.23: contabilidad (contadora y administración) --- */
+/* --- v2.24: contabilidad (contadora y administración) --- */
 function primerDiaMes(ym){return ym+'-01';}
 function ultimoDiaMes(ym){return ym+'-'+('0'+diasDe(ym)).slice(-2);}
 function tarjetaPresupuesto(PR){
@@ -1878,7 +1881,7 @@ function contaAccion(t){
   return false;
 }
 
-/* --- v2.23: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
+/* --- v2.24: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
 function admResumen(A,pend,pz){
   if(!S.estad){ llamar('estad',[S.pin,S.resMes||''],function(r){S.estad=r;S.resMes=r.ym;renderAdmin();},function(m){S.estad={error:m};renderAdmin();}); return '<div class="card in"><p class="empty">Cargando el resumen…</p></div>'; }
   if(S.estad.error) return '<div class="card in"><p class="err">'+esc(S.estad.error)+'</p><button type="button" class="btn ghost sm" data-adm-go="inicio">Volver</button></div>';
@@ -1950,7 +1953,7 @@ function desatrasoPanel(D){
   return h+'</div>';
 }
 
-/* --- v2.23: cuentas por pagar del mes (gastos fijos) --- */
+/* --- v2.24: cuentas por pagar del mes (gastos fijos) --- */
 function cuentasPorPagar(A){
   var D=S.cpp||A.cuentas_pagar; if(!D) return '';
   var ym=D.ym, R=D.resumen||{}, items=D.items||[], tope=(A.cuentas_pagar&&A.cuentas_pagar.ym)||ym, ver=soloVer('facturas');
@@ -2005,12 +2008,12 @@ function cuentasAccion(t){
 document.addEventListener('change',function(e){ if(e.target&&e.target.id==='res-mes'){S.resMes=e.target.value;llamar('estad',[S.pin,S.resMes],function(r){S.estad=r;renderAdmin();},function(m){toast(m);});} });
 document.addEventListener('change',function(e){
   var el=e.target; if(!el) return;
-  if(/^(faForm|taForm|taEvid|anForm|agForm)-file$/.test(el.id||'')){var key=el.id.replace('-file','');sincFotoForm(key);var S0=S[key]||(S[key]={files:[]});var fs=Array.prototype.slice.call(el.files||[]),k=0;if(!fs.length)return;fs.forEach(function(f){if(f.size>12*1024*1024){toast(f.name+' pesa más de 12 MB.');k++;if(k===fs.length)renderAdmin();return;}leerCaptura(f,function(x){(S[key].files=S[key].files||[]).push(x);k++;if(k===fs.length)renderAdmin();});});el.value='';return;}
+  if(/^(faForm|taForm|taEvid|anForm|novForm|agForm)-file$/.test(el.id||'')){var key=el.id.replace('-file','');sincFotoForm(key);var S0=S[key]||(S[key]={files:[]});var fs=Array.prototype.slice.call(el.files||[]),k=0;if(!fs.length)return;fs.forEach(function(f){if(f.size>12*1024*1024){toast(f.name+' pesa más de 12 MB.');k++;if(k===fs.length)renderAdmin();return;}leerCaptura(f,function(x){(S[key].files=S[key].files||[]).push(x);k++;if(k===fs.length)renderAdmin();});});el.value='';return;}
   if(el.id==='dir-q'){S.dirQ=el.value;S.dirN=40;renderAdmin();return;}
   if(el.id==='nom-cmp-file'){var num=S.nomCmpNum;var f=(el.files||[])[0];if(!f||!num)return;leerCaptura(f,function(x){llamar('nominaComprobante',[S.pin,S.quien,num,{b64:x.b64,nombre:x.nombre,mime:x.mime}],function(){S.nomCmpNum=null;recargarAdmin('Comprobante cargado para el recibo '+num+'.');},function(m){toast(m);});});el.value='';return;}
 });
 
-/* --- v2.23: faltas al reglamento, tareas del operario, comprobante de nómina --- */
+/* --- v2.24: faltas al reglamento, tareas del operario, comprobante de nómina --- */
 function esAdmin(){return S.perfil&&(S.perfil.rol==='admin'||S.perfil.rol==='coadmin');}
 function fotosPick(key,label){
   var P=S[key]||(S[key]={files:[]});
@@ -2023,6 +2026,7 @@ function sincFotoForm(key){
   else if(key==='taForm'){var e=S.taForm=S.taForm||{files:[]};if($('ta-tit'))e.titulo=$('ta-tit').value;if($('ta-desc'))e.desc=$('ta-desc').value;if($('ta-pri'))e.prioridad=$('ta-pri').value;}
   else if(key==='taEvid'){if(S.taEvid&&$('te-com'))S.taEvid.coment=$('te-com').value;}
   else if(key==='anForm'){var a=S.anForm=S.anForm||{files:[]};if($('an-tipo'))a.tipo=$('an-tipo').value;if($('an-lote'))a.lote=$('an-lote').value;if($('an-texto'))a.texto=$('an-texto').value;}
+  else if(key==='novForm'){var nv=S.novForm=S.novForm||{files:[]};if($('nov-tipo'))nv.tipo=$('nov-tipo').value;if($('nov-lote'))nv.lote=$('nov-lote').value;if($('nov-texto'))nv.texto=$('nov-texto').value;}
   else if(key==='agForm'){var g=S.agForm=S.agForm||{files:[]};if($('ag-fecha'))g.fecha=$('ag-fecha').value;if($('ag-franja'))g.franja=$('ag-franja').value;if($('ag-lectura'))g.lectura=$('ag-lectura').value;}
 }
 function verFotos(fotos,tit){return (fotos||[]).map(function(f,i){return '<button type="button" class="linkbtn" data-vid="'+esc(f.path)+'" data-tit="'+esc((tit||'Foto')+' '+(i+1))+'">Ver foto'+((fotos.length>1)?' '+(i+1):'')+'</button>';}).join(' · ');}
@@ -2154,6 +2158,41 @@ function vigilanciaAccion(t){
   if(t.hasAttribute('data-an-atender')){var id=parseInt(t.getAttribute('data-an-atender'),10),r=$('an-resp-'+id)?$('an-resp-'+id).value:'';llamar('anotacionAtender',[S.pin,S.quien,id,r],function(){recargarAdmin('Anotación atendida.');},function(m){toast(m);});return true;}
   if(t.hasAttribute('data-inf')){var tipo=t.getAttribute('data-inf'),ym=$('inf-ym')?$('inf-ym').value:'';var per=tipo==='anio'?String(new Date().getFullYear()):ym;var msg=$('inf-msg');if(msg)msg.textContent='Generando el informe, un momento…';
     llamar('adminInformeDatos',[S.pin,S.quien,tipo,per],function(d){if(msg)msg.textContent='';verInforme(d);},function(m){if(msg)msg.textContent='';toast(m);});return true;}
+  return false;
+}
+var NOV_ET={mantenimiento:'Mantenimiento',construccion:'Construcción / lotes',medidores:'Medidores y servicios',seguridad:'Seguridad',otro:'Otro'};
+function novForm(){
+  var d=S.novForm||(S.novForm={files:[]});
+  var t=d.tipo||'mantenimiento';
+  var opts=['mantenimiento','construccion','medidores','seguridad','otro'].map(function(k){return '<option value="'+k+'"'+(t===k?' selected':'')+'>'+NOV_ET[k]+'</option>';}).join('');
+  var h='<div class="frm"><p class="frm-t">Nueva novedad</p>';
+  h+='<div class="field"><label for="nov-tipo">Tipo</label><select id="nov-tipo">'+opts+'</select></div>';
+  h+='<div class="field"><label for="nov-lote">Lote (si aplica)</label><input id="nov-lote" type="text" placeholder="Ej.: 47 o 47-48" value="'+esc(d.lote||'')+'"></div>';
+  h+='<div class="field"><label for="nov-texto">¿Qué novedad?</label><textarea id="nov-texto" placeholder="Describe la novedad de la operación">'+esc(d.texto||'')+'</textarea></div>';
+  h+='<div class="field">'+fotosPick('novForm','Agregar foto (opcional)')+'</div>';
+  h+='<p id="f-err" class="err" hidden></p><div class="btnrow"><button type="button" class="btn primary" data-nov-crear="1">Enviar novedad</button></div></div>';
+  return h;
+}
+function admNovedades(A){
+  var NV=A.novedades||[], puedeAtender=(S.perfil&&(S.perfil.rol==='admin'||S.perfil.rol==='coadmin'));
+  var h='<div class="card in"><div class="admin-head"><h3 style="margin:0">'+I.doc+'Novedades de operación</h3></div>';
+  h+='<p class="lead small" style="margin:0 0 8px">Registra novedades del día a día de la operación —que no son faltas ni tareas— con foto y, si aplica, el lote.</p>'+novForm();
+  if(!NV.length) h+='<p class="empty">No hay novedades todavía.</p>';
+  NV.forEach(function(n){
+    var at=n.estado==='atendida';
+    h+='<div class="an-row"><p class="d" style="margin:0 0 4px"><span class="pill '+(at?'ok':'info')+'">'+esc(NOV_ET[n.etiqueta]||n.etiqueta)+'</span> <span class="small">'+fechaCorta((n.fecha||'').slice(0,10))+(n.lote?' · lote '+esc(n.lote):'')+' · '+esc(n.por||'')+'</span></p><p style="margin:0">'+esc(n.texto)+'</p>';
+    if(n.fotos&&n.fotos.length) h+='<p class="d acc" style="margin-top:4px">'+verFotos(n.fotos,'Foto de la novedad')+'</p>';
+    if(at) h+='<p class="small" style="color:var(--ok);margin-top:4px">Atendida'+(n.atendido_por?' por '+esc(n.atendido_por):'')+(n.respuesta?': '+esc(n.respuesta):'')+'</p>';
+    else if(puedeAtender) h+='<div class="g2 tight" style="margin-top:6px"><input id="nov-resp-'+n.id+'" type="text" placeholder="Respuesta (opcional)"><button type="button" class="btn primary sm" data-nov-atender="'+n.id+'">Marcar atendida</button></div>';
+    h+='</div>';
+  });
+  return h+'</div>';
+}
+function novedadesAccion(t){
+  if(t.hasAttribute('data-nov-crear')){sincFotoForm('novForm');var d=S.novForm||{};if(!(d.texto||'').trim()){errForm('Escribe la novedad.');return true;}
+    var fotos=(d.files||[]).map(function(f){return {b64:f.b64,nombre:f.nombre,mime:f.mime};});
+    llamar('novedadCrear',[S.pin,S.quien,d.tipo||'mantenimiento',d.lote||'',d.texto,fotos],function(){S.novForm=null;recargarAdmin('Novedad registrada.');},errForm);return true;}
+  if(t.hasAttribute('data-nov-atender')){var id=parseInt(t.getAttribute('data-nov-atender'),10),r=$('nov-resp-'+id)?$('nov-resp-'+id).value:'';llamar('novedadAtender',[S.pin,S.quien,id,r],function(){recargarAdmin('Novedad atendida.');},function(m){toast(m);});return true;}
   return false;
 }
 function tarjetaInformes(C){
@@ -2523,6 +2562,7 @@ document.addEventListener('click',function(e){
   if(faltasAccion(t)) return;
   if(tareasAccion(t)) return;
   if(vigilanciaAccion(t)) return;
+  if(novedadesAccion(t)) return;
   if(aguaAccion(t)) return;
   if(t.hasAttribute('data-fotox')){var p=t.getAttribute('data-fotox').split('|');sincFotoForm(p[0]);if(S[p[0]]&&S[p[0]].files){S[p[0]].files.splice(parseInt(p[1],10),1);renderAdmin();}return true;}
   if(t.hasAttribute('data-nom-cmp')){S.nomCmpNum=t.getAttribute('data-nom-cmp');var inp=document.getElementById('nom-cmp-file');if(!inp){inp=document.createElement('input');inp.type='file';inp.id='nom-cmp-file';inp.accept='image/*,application/pdf';inp.hidden=true;document.body.appendChild(inp);}inp.click();return true;}
