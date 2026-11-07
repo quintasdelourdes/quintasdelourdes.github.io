@@ -1265,7 +1265,7 @@ function activarUsuario(){
 }
 function salirAdmin(){
   var t=S.pin; guardarToken(''); S.pin=''; S.perfil=null; S.admin=null; S.form=null;
-  S.faForm=null;S.taForm=null;S.taEvid=null;S.faDec=null;S.faDecD=null;S.faTipos=false;S.cpp=null;S.estad=null;S.conta=null;S.nomCmpNum=null;S.faMias=null;S.autForm=null;S.anForm=null;S.novForm=null;S.agForm=null;S.dirQ='';S.dirN=0;
+  S.faForm=null;S.taForm=null;S.taEvid=null;S.faDec=null;S.faDecD=null;S.faTipos=false;S.cpp=null;S.estad=null;S.conta=null;S.nomCmpNum=null;S.faMias=null;S.autForm=null;S.anForm=null;S.novForm=null;S.agForm=null;S.emForm=null;S.dirQ='';S.dirN=0;
   if(t&&/^[0-9a-f]{48}$/.test(t)) llamar('salir',[t],function(){},function(){});
   toast('Sesión cerrada.'); cargarEquipo();
 }
@@ -1404,7 +1404,7 @@ function botonRecibo(r,txt){
   var ruta=r.ruta||(r.pdf?'NOMINA NEDER/'+r.pdf:''); if(!ruta) return '';
   return '<button type="button" class="linkbtn" data-vruta="'+esc(ruta)+'" data-tit="Recibo de nómina '+esc(r.num||r.periodo||'')+'">'+txt+'</button>';
 }
-/* --- v2.25: pantallazos del cuadre diario --- */
+/* --- v2.27: pantallazos del cuadre diario --- */
 function fechaHora(iso){if(!iso)return '';var s=String(iso),d=s.slice(0,10),t=s.slice(11,16);if(!t)return fechaCorta(d);var h=parseInt(t.slice(0,2),10),m=t.slice(3,5),ap=h>=12?'p. m.':'a. m.';h=h%12||12;return fechaCorta(d)+' '+h+':'+m+' '+ap;}
 function diasFaltan(ultimo){var out=[],d=new Date(ultimo+'T12:00:00'),hoy=hoyISO();for(var i=0;i<60;i++){d.setDate(d.getDate()+1);var iso=d.toISOString().slice(0,10);if(iso>=hoy)break;out.push(iso);}return out;}
 function admCuadre(A){
@@ -1615,7 +1615,7 @@ function admResumen(A,pend,pz){
   return h;
 }
 
-/* --- v2.25: reservas del salón social y la piscina, avisos, mis datos --- */
+/* --- v2.27: reservas del salón social y la piscina, avisos, mis datos --- */
 var ESPACIOS={salon:'Salón social',piscina:'Piscina'};
 var DIAS_SEM=['L','M','M','J','V','S','D'];
 function pesos(n){return fmt(n||0);}
@@ -1734,7 +1734,7 @@ function activarAvisos(doc,token){
 }
 try{ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){}); }catch(e){}
 
-/* --- v2.25: panel amigable (inicio con tarjetas) --- */
+/* --- v2.27: panel amigable (inicio con tarjetas) --- */
 var SEC={
   inicio:{t:'Inicio',ic:I.home,d:''},
   confirmar:{t:'Pagos por confirmar',ic:I.camera,d:'Pagos reportados por los propietarios y solicitudes de paz y salvo.'},
@@ -1791,13 +1791,13 @@ function admInicio(A){
   h+='<div class="card in"><p class="lead" style="margin:0">'+(fr.length?'Hoy tienes <strong>'+fr.join('</strong>, <strong>')+'</strong>.':'No tienes pendientes por ahora.')+'</p></div>';
   if(T.reservas&&A.reservas&&(A.reservas.manana||[]).length) h+='<div class="card in aviso-res"><div class="aviso-ico">'+I_CAL+'</div><div><strong>Mañana: '+A.reservas.manana.map(function(r){return esc(r.espacio_nombre)+' · '+esc(etiqAdm(r.lote))+' ('+esc(r.nombre)+')';}).join(' · ')+'</strong><p class="small" style="margin:2px 0 0"><button type="button" class="linkbtn" data-adm-go="reservas">Ver reservas</button></p></div></div>';
   h+='<div class="sec-grid">'+modulosPermitidos().map(function(x){var n=0;x.tabs.forEach(function(k){n+=P[k]||0;});return '<button type="button" class="sec-card" data-adm-mod="'+x.m.id+'"><span class="sec-ic">'+x.m.ic+'</span><span class="sec-t">'+esc(x.m.t)+(n?'<span class="badge">'+n+'</span>':'')+'</span><span class="sec-d">'+x.tabs.map(function(k){var b=P[k]||0;return esc(SUBT[k])+(b?' <b>('+b+')</b>':'');}).join(' · ')+'</span></button>';}).join('')+'</div>';
-  if(S.perfil&&S.perfil.tipo==='usuario') h+='<div class="card in"><p class="small" style="margin:0">'+(S.admin.push_activo?'Avisos activados en este teléfono.':'<button type="button" class="linkbtn" id="b-push-eq">'+I.alert+' Activar avisos en este teléfono</button> (reservas de mañana y novedades).')+'</p></div>';
+  if(S.perfil&&S.perfil.tipo==='usuario') h+='<div class="card in"><p class="small" style="margin:0">'+(S.admin.push_activo?'Avisos ya activados en otro aparato. ':'')+'Para recibirlos en <b>este</b> teléfono o computador actívalos aquí (es por aparato): <button type="button" class="linkbtn" id="b-push-eq">'+I.alert+' Activar avisos en este teléfono</button> (reservas, pagos, paz y salvos y lo que registra Neder).</p></div>';
   return h;
 }
 function etiqAdm(l){return String(l).indexOf('y')>0?'Lotes '+String(l).replace('y',' y '):'Lote '+l;}
 function admAyuda(k){var d=(SEC[k]||{}).d; return d?'<p class="small ayuda">'+esc(d)+'</p>':'';}
 
-/* --- v2.25: reservas en el panel --- */
+/* --- v2.27: reservas en el panel --- */
 function admReservas(A){
   var R=A.reservas||{reservas:[],canceladas:[],manana:[]}, hoy=R.hoy||hoyISO(), ym=S.rvMesAdm||ymDe(hoy);
   var occ={}; (R.reservas||[]).forEach(function(r){occ[r.espacio+'|'+r.fecha]=r;});
@@ -1838,7 +1838,7 @@ function reservasAdmAccion(t){
   return false;
 }
 
-/* --- v2.25: contabilidad (contadora y administración) --- */
+/* --- v2.27: contabilidad (contadora y administración) --- */
 function primerDiaMes(ym){return ym+'-01';}
 function ultimoDiaMes(ym){return ym+'-'+('0'+diasDe(ym)).slice(-2);}
 function tarjetaPresupuesto(PR){
@@ -1881,7 +1881,7 @@ function contaAccion(t){
   return false;
 }
 
-/* --- v2.25: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
+/* --- v2.27: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
 function admResumen(A,pend,pz){
   if(!S.estad){ llamar('estad',[S.pin,S.resMes||''],function(r){S.estad=r;S.resMes=r.ym;renderAdmin();},function(m){S.estad={error:m};renderAdmin();}); return '<div class="card in"><p class="empty">Cargando el resumen…</p></div>'; }
   if(S.estad.error) return '<div class="card in"><p class="err">'+esc(S.estad.error)+'</p><button type="button" class="btn ghost sm" data-adm-go="inicio">Volver</button></div>';
@@ -1953,7 +1953,7 @@ function desatrasoPanel(D){
   return h+'</div>';
 }
 
-/* --- v2.25: cuentas por pagar del mes (gastos fijos) --- */
+/* --- v2.27: cuentas por pagar del mes (gastos fijos) --- */
 function cuentasPorPagar(A){
   var D=S.cpp||A.cuentas_pagar; if(!D) return '';
   var ym=D.ym, R=D.resumen||{}, items=D.items||[], tope=(A.cuentas_pagar&&A.cuentas_pagar.ym)||ym, ver=soloVer('facturas');
@@ -2013,7 +2013,7 @@ document.addEventListener('change',function(e){
   if(el.id==='nom-cmp-file'){var num=S.nomCmpNum;var f=(el.files||[])[0];if(!f||!num)return;leerCaptura(f,function(x){llamar('nominaComprobante',[S.pin,S.quien,num,{b64:x.b64,nombre:x.nombre,mime:x.mime}],function(){S.nomCmpNum=null;recargarAdmin('Comprobante cargado para el recibo '+num+'.');},function(m){toast(m);});});el.value='';return;}
 });
 
-/* --- v2.25: faltas al reglamento, tareas del operario, comprobante de nómina --- */
+/* --- v2.27: faltas al reglamento, tareas del operario, comprobante de nómina --- */
 function esAdmin(){return S.perfil&&(S.perfil.rol==='admin'||S.perfil.rol==='coadmin');}
 function fotosPick(key,label){
   var P=S[key]||(S[key]={files:[]});
@@ -2100,9 +2100,38 @@ function waFalta(f){
   return 'https://wa.me/'+tel+'?text='+encodeURIComponent(t);
 }
 function nomCorto(n){return String(n||'').split(' ').slice(0,2).join(' ');}
+function cardEmergencia(A){
+  var E=A.dir_emergencia||[];
+  var h='<div class="card in"><div class="admin-head"><h3 style="margin:0">'+I.alert+'Directorio de emergencia</h3></div>';
+  h+='<p class="lead small" style="margin:0 0 8px">Ante cualquier emergencia marca <b>123</b>. Toca un número para llamar. Cualquiera del equipo o la portería puede agregar o corregir.</p>';
+  if(!E.length) h+='<p class="empty">Aún no hay números.</p>';
+  E.forEach(function(x){
+    var tel=(x.telefono||'').replace(/[^0-9+]/g,'');
+    h+='<div class="rv-item"><div><a href="tel:'+esc(tel)+'"><strong>'+esc(x.nombre)+'</strong></a> · <a href="tel:'+esc(tel)+'">'+esc(x.telefono)+'</a>'+(x.nota?' <span class="small">· '+esc(x.nota)+'</span>':'')+'</div><span class="small"><button type="button" class="linkbtn" data-em-ed="'+x.id+'">Editar</button> · <button type="button" class="linkbtn" data-em-del="'+x.id+'">Quitar</button></span></div>';
+  });
+  if(S.emForm){ var d=S.emForm;
+    h+='<div class="frm"><p class="frm-t">'+(d.id?'Editar número':'Nuevo número')+'</p>';
+    h+='<div class="field"><label for="em-nom">Nombre</label><input id="em-nom" type="text" placeholder="Ej.: Bomberos Apartadó" value="'+esc(d.nombre||'')+'"></div>';
+    h+='<div class="field"><label for="em-tel">Teléfono</label><input id="em-tel" type="text" inputmode="tel" placeholder="Ej.: 123 o 604 824 1010" value="'+esc(d.telefono||'')+'"></div>';
+    h+='<div class="field"><label for="em-nota">Nota (opcional)</label><input id="em-nota" type="text" placeholder="Ej.: WhatsApp, dirección" value="'+esc(d.nota||'')+'"></div>';
+    h+='<p id="f-err" class="err" hidden></p><div class="btnrow"><button type="button" class="btn primary" data-em-save="1">Guardar</button><button type="button" class="btn ghost" data-em-cancel="1">Cancelar</button></div></div>';
+  } else {
+    h+='<div class="btnrow" style="margin-top:8px"><button type="button" class="btn ghost sm" data-em-add="1">'+I.alert+' Agregar número</button></div>';
+  }
+  return h+'</div>';
+}
+function emergenciaAccion(t){
+  if(t.getAttribute('data-em-add')==='1'){S.emForm={};renderAdmin();return true;}
+  if(t.hasAttribute('data-em-ed')){var id=t.getAttribute('data-em-ed');var e=((S.admin&&S.admin.dir_emergencia)||[]).filter(function(x){return String(x.id)===String(id);})[0];S.emForm=e?{id:e.id,nombre:e.nombre,telefono:e.telefono,nota:e.nota||''}:{};renderAdmin();return true;}
+  if(t.getAttribute('data-em-cancel')==='1'){S.emForm=null;renderAdmin();return true;}
+  if(t.getAttribute('data-em-save')==='1'){var nom=$('em-nom')?$('em-nom').value:'',tel=$('em-tel')?$('em-tel').value:'',nota=$('em-nota')?$('em-nota').value:'';if(!nom.trim()||!tel.trim()){errForm('Escribe el nombre y el teléfono.');return true;}var d=S.emForm||{};
+    llamar('dirEmergenciaGuardar',[S.pin,S.quien,{id:d.id||0,nombre:nom,telefono:tel,nota:nota}],function(){S.emForm=null;recargarAdmin('Número guardado.');},errForm);return true;}
+  if(t.hasAttribute('data-em-del')){if(!confirm('¿Quitar este número del directorio de emergencia?'))return true;llamar('dirEmergenciaEliminar',[S.pin,S.quien,parseInt(t.getAttribute('data-em-del'),10)],function(){recargarAdmin('Número quitado.');},function(m){toast(m);});return true;}
+  return false;
+}
 function admDirectorio(A){
   var D=A.directorio||[], admin=esAdmin(), q=(S.dirQ||'').toLowerCase(), N=S.dirN||40;
-  var h='<div class="card in"><div class="admin-head"><h3 style="margin:0">'+I.shield+'Directorio</h3></div>';
+  var h=cardEmergencia(A)+'<div class="card in"><div class="admin-head"><h3 style="margin:0">'+I.shield+'Directorio</h3></div>';
   h+='<p class="lead small" style="margin:0 0 8px">Propietario y teléfono por lote'+(admin?'. Agrega las personas autorizadas por cada propietario (encargados, inquilinos, empleadas).':', siempre actualizado.')+'</p>';
   h+='<input id="dir-q" type="search" style="width:100%;margin-bottom:8px" placeholder="Buscar lote o propietario" value="'+esc(S.dirQ||'')+'">';
   var fil=D.filter(function(r){return !q||(((r.lote||'')+' '+(r.propietario||'')).toLowerCase().indexOf(q)>=0);});
@@ -2563,6 +2592,7 @@ document.addEventListener('click',function(e){
   if(tareasAccion(t)) return;
   if(vigilanciaAccion(t)) return;
   if(novedadesAccion(t)) return;
+  if(emergenciaAccion(t)) return;
   if(aguaAccion(t)) return;
   if(t.hasAttribute('data-fotox')){var p=t.getAttribute('data-fotox').split('|');sincFotoForm(p[0]);if(S[p[0]]&&S[p[0]].files){S[p[0]].files.splice(parseInt(p[1],10),1);renderAdmin();}return true;}
   if(t.hasAttribute('data-nom-cmp')){S.nomCmpNum=t.getAttribute('data-nom-cmp');var inp=document.getElementById('nom-cmp-file');if(!inp){inp=document.createElement('input');inp.type='file';inp.id='nom-cmp-file';inp.accept='image/*,application/pdf';inp.hidden=true;document.body.appendChild(inp);}inp.click();return true;}
