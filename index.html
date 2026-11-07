@@ -1404,7 +1404,7 @@ function botonRecibo(r,txt){
   var ruta=r.ruta||(r.pdf?'NOMINA NEDER/'+r.pdf:''); if(!ruta) return '';
   return '<button type="button" class="linkbtn" data-vruta="'+esc(ruta)+'" data-tit="Recibo de nómina '+esc(r.num||r.periodo||'')+'">'+txt+'</button>';
 }
-/* --- v2.24: pantallazos del cuadre diario --- */
+/* --- v2.25: pantallazos del cuadre diario --- */
 function fechaHora(iso){if(!iso)return '';var s=String(iso),d=s.slice(0,10),t=s.slice(11,16);if(!t)return fechaCorta(d);var h=parseInt(t.slice(0,2),10),m=t.slice(3,5),ap=h>=12?'p. m.':'a. m.';h=h%12||12;return fechaCorta(d)+' '+h+':'+m+' '+ap;}
 function diasFaltan(ultimo){var out=[],d=new Date(ultimo+'T12:00:00'),hoy=hoyISO();for(var i=0;i<60;i++){d.setDate(d.getDate()+1);var iso=d.toISOString().slice(0,10);if(iso>=hoy)break;out.push(iso);}return out;}
 function admCuadre(A){
@@ -1615,7 +1615,7 @@ function admResumen(A,pend,pz){
   return h;
 }
 
-/* --- v2.24: reservas del salón social y la piscina, avisos, mis datos --- */
+/* --- v2.25: reservas del salón social y la piscina, avisos, mis datos --- */
 var ESPACIOS={salon:'Salón social',piscina:'Piscina'};
 var DIAS_SEM=['L','M','M','J','V','S','D'];
 function pesos(n){return fmt(n||0);}
@@ -1651,7 +1651,7 @@ function renderReservas(){
   if(!S.RV){ el.innerHTML='<div class="card"><p class="empty">Cargando el calendario…</p></div>'; llamar('reservasVer',[S.doc,'2000-01-01','2100-01-01'],function(r){S.RV=r;S.rvMes=S.rvMes||ymDe(r.desde);S.rvEsp=S.rvEsp||'salon';renderReservas();},function(m){el.innerHTML='<div class="card"><p class="err">'+esc(m)+'</p></div>';}); return; }
   var R=S.RV, ym=S.rvMes, esp=S.rvEsp, hoy=R.hoy, lotes=S.D.prop.lotes, alDia=lotes.filter(function(l){return R.lotes_al_dia[l];});
   var occ={}; (R.ocupados||[]).forEach(function(o){occ[o.espacio+'|'+o.fecha]=o;});
-  var h='<div class="card in"><h3>'+I_CAL+'Reservar el salón social o la piscina</h3><p class="lead" style="margin:0 0 10px">Se reserva por día completo, desde mañana y hasta '+esc(fechaLarga(R.hasta))+'. '+(R.solo_al_dia?'Pueden reservar los lotes que estén al día. ':'')+'El salón social tiene un depósito de '+pesos(R.deposito_salon)+' que se devuelve después del evento.</p>';
+  var h='<div class="card in"><h3>'+I_CAL+'Reservar el salón social o la piscina</h3><p class="lead" style="margin:0 0 10px">Se reserva por día completo, desde hoy y hasta '+esc(fechaLarga(R.hasta))+'. '+(R.solo_al_dia?'Pueden reservar los lotes que estén al día. ':'')+'El salón social tiene un depósito de '+pesos(R.deposito_salon)+' que se devuelve después del evento.</p>';
   h+='<div class="seg" style="margin:0 0 10px"><div class="tablist static" role="tablist">'+Object.keys(ESPACIOS).map(function(k){return '<button type="button" class="tab" data-rv-esp="'+k+'" aria-selected="'+(esp===k)+'"><span>'+ESPACIOS[k]+'</span></button>';}).join('')+'</div></div>';
   h+='<div class="cal-head"><button type="button" class="btn ghost sm" data-rv-mes="-1" '+(ym<=ymDe(R.desde)?'disabled':'')+'>'+I.back+'</button><strong>'+esc(nombreMes(ym))+'</strong><button type="button" class="btn ghost sm" data-rv-mes="1" '+(ym>=ymDe(R.hasta)?'disabled':'')+'>'+I.back.replace('<svg','<svg style="transform:scaleX(-1)"')+'</button></div>';
   h+='<div class="cal">'+DIAS_SEM.map(function(d){return '<span class="cal-d">'+d+'</span>';}).join('');
@@ -1734,7 +1734,7 @@ function activarAvisos(doc,token){
 }
 try{ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){}); }catch(e){}
 
-/* --- v2.24: panel amigable (inicio con tarjetas) --- */
+/* --- v2.25: panel amigable (inicio con tarjetas) --- */
 var SEC={
   inicio:{t:'Inicio',ic:I.home,d:''},
   confirmar:{t:'Pagos por confirmar',ic:I.camera,d:'Pagos reportados por los propietarios y solicitudes de paz y salvo.'},
@@ -1797,7 +1797,7 @@ function admInicio(A){
 function etiqAdm(l){return String(l).indexOf('y')>0?'Lotes '+String(l).replace('y',' y '):'Lote '+l;}
 function admAyuda(k){var d=(SEC[k]||{}).d; return d?'<p class="small ayuda">'+esc(d)+'</p>':'';}
 
-/* --- v2.24: reservas en el panel --- */
+/* --- v2.25: reservas en el panel --- */
 function admReservas(A){
   var R=A.reservas||{reservas:[],canceladas:[],manana:[]}, hoy=R.hoy||hoyISO(), ym=S.rvMesAdm||ymDe(hoy);
   var occ={}; (R.reservas||[]).forEach(function(r){occ[r.espacio+'|'+r.fecha]=r;});
@@ -1838,7 +1838,7 @@ function reservasAdmAccion(t){
   return false;
 }
 
-/* --- v2.24: contabilidad (contadora y administración) --- */
+/* --- v2.25: contabilidad (contadora y administración) --- */
 function primerDiaMes(ym){return ym+'-01';}
 function ultimoDiaMes(ym){return ym+'-'+('0'+diasDe(ym)).slice(-2);}
 function tarjetaPresupuesto(PR){
@@ -1881,7 +1881,7 @@ function contaAccion(t){
   return false;
 }
 
-/* --- v2.24: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
+/* --- v2.25: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
 function admResumen(A,pend,pz){
   if(!S.estad){ llamar('estad',[S.pin,S.resMes||''],function(r){S.estad=r;S.resMes=r.ym;renderAdmin();},function(m){S.estad={error:m};renderAdmin();}); return '<div class="card in"><p class="empty">Cargando el resumen…</p></div>'; }
   if(S.estad.error) return '<div class="card in"><p class="err">'+esc(S.estad.error)+'</p><button type="button" class="btn ghost sm" data-adm-go="inicio">Volver</button></div>';
@@ -1953,7 +1953,7 @@ function desatrasoPanel(D){
   return h+'</div>';
 }
 
-/* --- v2.24: cuentas por pagar del mes (gastos fijos) --- */
+/* --- v2.25: cuentas por pagar del mes (gastos fijos) --- */
 function cuentasPorPagar(A){
   var D=S.cpp||A.cuentas_pagar; if(!D) return '';
   var ym=D.ym, R=D.resumen||{}, items=D.items||[], tope=(A.cuentas_pagar&&A.cuentas_pagar.ym)||ym, ver=soloVer('facturas');
@@ -2013,7 +2013,7 @@ document.addEventListener('change',function(e){
   if(el.id==='nom-cmp-file'){var num=S.nomCmpNum;var f=(el.files||[])[0];if(!f||!num)return;leerCaptura(f,function(x){llamar('nominaComprobante',[S.pin,S.quien,num,{b64:x.b64,nombre:x.nombre,mime:x.mime}],function(){S.nomCmpNum=null;recargarAdmin('Comprobante cargado para el recibo '+num+'.');},function(m){toast(m);});});el.value='';return;}
 });
 
-/* --- v2.24: faltas al reglamento, tareas del operario, comprobante de nómina --- */
+/* --- v2.25: faltas al reglamento, tareas del operario, comprobante de nómina --- */
 function esAdmin(){return S.perfil&&(S.perfil.rol==='admin'||S.perfil.rol==='coadmin');}
 function fotosPick(key,label){
   var P=S[key]||(S[key]={files:[]});
