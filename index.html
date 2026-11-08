@@ -1416,7 +1416,7 @@ function botonRecibo(r,txt){
   var ruta=r.ruta||(r.pdf?'NOMINA NEDER/'+r.pdf:''); if(!ruta) return '';
   return '<button type="button" class="linkbtn" data-vruta="'+esc(ruta)+'" data-tit="Recibo de nómina '+esc(r.num||r.periodo||'')+'">'+txt+'</button>';
 }
-/* --- v2.38: pantallazos del cuadre diario --- */
+/* --- v2.39: pantallazos del cuadre diario --- */
 function fechaHora(iso){if(!iso)return '';var s=String(iso),d=s.slice(0,10),t=s.slice(11,16);if(!t)return fechaCorta(d);var h=parseInt(t.slice(0,2),10),m=t.slice(3,5),ap=h>=12?'p. m.':'a. m.';h=h%12||12;return fechaCorta(d)+' '+h+':'+m+' '+ap;}
 function diasFaltan(ultimo){var out=[],d=new Date(ultimo+'T12:00:00'),hoy=hoyISO();for(var i=0;i<60;i++){d.setDate(d.getDate()+1);var iso=d.toISOString().slice(0,10);if(iso>=hoy)break;out.push(iso);}return out;}
 function admCuadre(A){
@@ -1447,7 +1447,7 @@ function pcRow(b){
   return h+'<p class="d" style="margin-top:4px">'+est+'</p></div></div>';
 }
 /* lee una imagen; si pesa más de 1,2 MB la reduce (JPEG, lado mayor 2000 px) para que suba rápido desde el celular.
-   Además genera una miniatura (`min`, JPEG de hasta 900 px) que la función guarda al lado de la foto para los PDF (v2.38). */
+   Además genera una miniatura (`min`, JPEG de hasta 900 px) que la función guarda al lado de la foto para los PDF (v2.39). */
 function leerCaptura(f,cb){
   var rd=new FileReader();
   rd.onload=function(){
@@ -1531,7 +1531,7 @@ function formEgreso(){
     '<div class="btnrow"><button type="button" class="btn primary" data-fsend="egreso">'+(F.factura_id?'Guardar pago':'Guardar gasto')+'</button><button type="button" class="btn ghost" data-form="">Cancelar</button></div></form>';
 }
 
-/* --- facturas por pagar (dentro de Egresos, v2.38) --- */
+/* --- facturas por pagar (dentro de Egresos, v2.39) --- */
 function facturasPorPagar(A){
   var F=(A.facturas||[]), pp=F.filter(function(f){return f.estado!=='pagada';}).sort(function(a,b){return String(a.vence||'9').localeCompare(String(b.vence||'9'));}), pg=F.filter(function(f){return f.estado==='pagada';}).reverse();
   var h='<div class="card in"><div class="admin-head"><h3 style="margin:0">'+I.mail+'Facturas por pagar'+(pp.length?' <span class="pill warn">'+pp.length+'</span>':'')+'</h3></div>';
@@ -1670,7 +1670,7 @@ function admResumen(A,pend,pz){
   return h;
 }
 
-/* --- v2.38: reservas del salón social y la piscina, avisos, mis datos --- */
+/* --- v2.39: reservas del salón social y la piscina, avisos, mis datos --- */
 var ESPACIOS={salon:'Salón social',piscina:'Piscina'};
 var DIAS_SEM=['L','M','M','J','V','S','D'];
 function pesos(n){return fmt(n||0);}
@@ -1807,7 +1807,7 @@ function desactivarAvisos(modo){
   }).catch(function(e){toast('No se pudo desactivar: '+(e&&e.message||e));});
 }
 
-/* --- v2.38: panel amigable (inicio con tarjetas) --- */
+/* --- v2.39: panel amigable (inicio con tarjetas) --- */
 var SEC={
   inicio:{t:'Inicio',ic:I.home,d:''},
   confirmar:{t:'Pagos por confirmar',ic:I.camera,d:'Pagos reportados por los propietarios y solicitudes de paz y salvo.'},
@@ -1875,7 +1875,7 @@ function admInicio(A){
 function etiqAdm(l){return String(l).indexOf('y')>0?'Lotes '+String(l).replace('y',' y '):'Lote '+l;}
 function admAyuda(k){var d=(SEC[k]||{}).d; return d?'<p class="small ayuda">'+esc(d)+'</p>':'';}
 
-/* --- v2.38: reservas en el panel --- */
+/* --- v2.39: reservas en el panel --- */
 function admReservas(A){
   var R0=A.reservas||{reservas:[],canceladas:[],manana:[]}, hoy=R0.hoy||hoyISO(), ym=S.rvMesAdm||ymDe(hoy);
   // el resumen trae solo desde hoy; para ver un mes completo (incluido lo pasado) se pide ese mes y se guarda
@@ -1921,7 +1921,7 @@ function reservasAdmAccion(t){
   return false;
 }
 
-/* --- v2.38: contabilidad (contadora y administración) --- */
+/* --- v2.39: contabilidad (contadora y administración) --- */
 function primerDiaMes(ym){return ym+'-01';}
 function ultimoDiaMes(ym){return ym+'-'+('0'+diasDe(ym)).slice(-2);}
 function tarjetaPresupuesto(PR){
@@ -1965,7 +1965,7 @@ function contaAccion(t){
   return false;
 }
 
-/* --- v2.38: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
+/* --- v2.39: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
 function admResumen(A,pend,pz){
   if(!S.estad){ llamar('estad',[S.pin,S.resMes||''],function(r){S.estad=r;S.resMes=r.ym;renderAdmin();},function(m){S.estad={error:m};renderAdmin();}); return '<div class="card in"><p class="empty">Cargando el resumen…</p></div>'; }
   if(S.estad.error) return '<div class="card in"><p class="err">'+esc(S.estad.error)+'</p><button type="button" class="btn ghost sm" data-adm-go="inicio">Volver</button></div>';
@@ -2037,7 +2037,7 @@ function desatrasoPanel(D){
   return h+'</div>';
 }
 
-/* --- v2.38: cuentas por pagar del mes (gastos fijos) --- */
+/* --- v2.39: cuentas por pagar del mes (gastos fijos) --- */
 function cuentasPorPagar(A){
   var D=S.cpp||A.cuentas_pagar; if(!D) return '';
   var ym=D.ym, R=D.resumen||{}, items=D.items||[], tope=(A.cuentas_pagar&&A.cuentas_pagar.ym)||ym, ver=soloVer('facturas');
@@ -2098,7 +2098,7 @@ document.addEventListener('change',function(e){
   if(el.id==='nom-cmp-file'){var num=S.nomCmpNum;var f=(el.files||[])[0];if(!f||!num)return;leerCaptura(f,function(x){llamar('nominaComprobante',[S.pin,S.quien,num,{b64:x.b64,nombre:x.nombre,mime:x.mime}],function(){S.nomCmpNum=null;recargarAdmin('Comprobante cargado para el recibo '+num+'.');},function(m){toast(m);});});el.value='';return;}
 });
 
-/* --- v2.38: faltas al reglamento, tareas del operario, comprobante de nómina --- */
+/* --- v2.39: faltas al reglamento, tareas del operario, comprobante de nómina --- */
 function esAdmin(){return S.perfil&&(S.perfil.rol==='admin'||S.perfil.rol==='coadmin');}
 function fotosPick(key,label){
   var P=S[key]||(S[key]={files:[]});
@@ -2138,7 +2138,7 @@ function faltaForm(tipos){
   var tsel=tipos.filter(function(t){return String(t.id)===String(d.tipo);})[0];
   if(tsel&&tsel.descripcion) h+='<p class="small" style="margin:4px 0 0">'+esc(tsel.descripcion)+'</p>';
   h+='<label for="fa-lote" style="margin-top:10px">Lote (si aplica)</label><input id="fa-lote" type="text" inputmode="numeric" placeholder="Ej.: 17" value="'+esc(d.lote||'')+'">';
-  h+='<label for="fa-desc" style="margin-top:10px">Qué pasó</label><textarea id="fa-desc" placeholder="Describe la falta…">'+esc(d.desc||'')+'</textarea>';
+  h+='<label for="fa-desc" style="margin-top:10px">Qué pasó</label><textarea id="fa-desc" placeholder="Describe la falta…">'+esc(d.desc||'')+'</textarea>'+iaBtn('fa-desc','descripción de una falta al reglamento reportada por el equipo');
   h+='<div style="margin-top:10px">'+fotosPick('faForm','Agregar foto de la falta')+'</div>';
   h+='<p id="f-err" class="err" hidden></p><div class="btnrow" style="margin-top:10px"><button type="button" class="btn primary" data-fa="reportar">Reportar falta</button></div></div>';
   return h;
@@ -2171,7 +2171,7 @@ function faltaDecidirForm(f){
   var d=S.faDecD||(S.faDecD={comentario:f.descripcion,articulo:ts.articulo||'',correctivo:ts.correctivo||'',multa:'',visible:true,comunicado:'',plazo:plazoDefecto(7)});
   var h='<div class="frm" style="margin-top:8px"><p class="frm-t">Revisar falta '+esc(f.id)+'</p>';
   if(ts.nota_legal) h+='<div class="aviso-legal">'+I.alert+'<span><strong>Nota legal:</strong> '+esc(ts.nota_legal)+'</span></div>';
-  h+='<label for="fd-com">Comentario (lo puedes editar)</label><textarea id="fd-com">'+esc(d.comentario||'')+'</textarea>';
+  h+='<label for="fd-com">Comentario (lo puedes editar)</label><textarea id="fd-com">'+esc(d.comentario||'')+'</textarea>'+iaBtn('fd-com','comentario de la administración al propietario en un llamado de atención por una falta al reglamento');
   h+='<div class="g2"><div class="field"><label for="fd-art">Artículo</label><input id="fd-art" type="text" value="'+esc(d.articulo||'')+'"></div><div class="field"><label for="fd-multa">Multa (opcional)</label><input id="fd-multa" class="money-in" inputmode="numeric" placeholder="$0" value="'+(d.multa?miles(d.multa):'')+'"></div></div>';
   h+='<label for="fd-cor">Correctivo</label><input id="fd-cor" type="text" value="'+esc(d.correctivo||'')+'">';
   h+='<div class="g2" style="margin-top:8px"><div class="field"><label for="fd-plazo">Plazo para corregir (va en el PDF)</label><input id="fd-plazo" type="date" value="'+esc(d.plazo||'')+'"></div><div class="field"><label>&nbsp;</label><button type="button" class="btn ghost sm" data-fa-vista="'+esc(f.id)+'">Vista previa del llamado</button></div></div>';
@@ -2309,7 +2309,7 @@ function anForm(){
   var h='<div class="frm"><p class="frm-t">Nueva anotación</p>';
   h+='<div class="field"><label for="an-tipo">Tipo</label><select id="an-tipo"><option value="novedad"'+((d.tipo||'novedad')==='novedad'?' selected':'')+'>Novedad</option><option value="anomalia"'+(d.tipo==='anomalia'?' selected':'')+'>Anomalía</option><option value="solicitud"'+(d.tipo==='solicitud'?' selected':'')+'>Solicitud</option></select></div>';
   h+='<div class="field"><label for="an-lote">Lote (si aplica)</label><input id="an-lote" type="text" placeholder="Ej.: 17" value="'+esc(d.lote||'')+'"></div>';
-  h+='<div class="field"><label for="an-texto">¿Qué pasó?</label><textarea id="an-texto" placeholder="Describe la anomalía, novedad o solicitud">'+esc(d.texto||'')+'</textarea></div>';
+  h+='<div class="field"><label for="an-texto">¿Qué pasó?</label><textarea id="an-texto" placeholder="Describe la anomalía, novedad o solicitud">'+esc(d.texto||'')+'</textarea>'+iaBtn('an-texto','anotación de la portería')+'</div>';
   h+='<div class="field">'+fotosPick('anForm','Agregar foto (opcional)')+'</div>';
   h+='<p id="f-err" class="err" hidden></p><div class="btnrow"><button type="button" class="btn primary" data-an-crear="1">Enviar anotación</button></div></div>';
   return h;
@@ -2340,7 +2340,7 @@ function novEditForm(n){
   var h='<div class="frm" style="margin-top:8px"><p class="frm-t">Editar novedad</p>';
   h+='<div class="g2"><div class="field"><label for="nove-tipo">Tipo</label><select id="nove-tipo">'+['mantenimiento','construccion','medidores','seguridad','anomalia','solicitud','otro'].map(function(k){return '<option value="'+k+'"'+(d.tipo===k?' selected':'')+'>'+NOV_ET[k]+'</option>';}).join('')+'</select></div>';
   h+='<div class="field"><label for="nove-lote">Lote (si aplica)</label><input id="nove-lote" type="text" value="'+esc(d.lote||'')+'"></div></div>';
-  h+='<div class="field"><label for="nove-texto">Texto</label><textarea id="nove-texto">'+esc(d.texto||'')+'</textarea></div>';
+  h+='<div class="field"><label for="nove-texto">Texto</label><textarea id="nove-texto">'+esc(d.texto||'')+'</textarea>'+iaBtn('nove-texto','novedad de la operación o de la portería')+'</div>';
   h+='<p id="f-err" class="err" hidden></p><div class="btnrow"><button type="button" class="btn primary sm" data-nov-save="'+n.id+'">Guardar cambios</button><button type="button" class="btn ghost sm" data-nov-edcancel="1">Cancelar</button></div></div>';
   return h;
 }
@@ -2351,7 +2351,7 @@ function novForm(){
   var h='<div class="frm"><p class="frm-t">Nueva novedad</p>';
   h+='<div class="field"><label for="nov-tipo">Tipo</label><select id="nov-tipo">'+opts+'</select></div>';
   h+='<div class="field"><label for="nov-lote">Lote (si aplica)</label><input id="nov-lote" type="text" placeholder="Ej.: 47 o 47-48" value="'+esc(d.lote||'')+'"></div>';
-  h+='<div class="field"><label for="nov-texto">¿Qué novedad?</label><textarea id="nov-texto" placeholder="Describe la novedad de la operación">'+esc(d.texto||'')+'</textarea></div>';
+  h+='<div class="field"><label for="nov-texto">¿Qué novedad?</label><textarea id="nov-texto" placeholder="Describe la novedad de la operación">'+esc(d.texto||'')+'</textarea>'+iaBtn('nov-texto','novedad de la operación o de la portería')+'</div>';
   h+='<div class="field">'+fotosPick('novForm','Agregar foto (opcional)')+'</div>';
   h+='<p id="f-err" class="err" hidden></p><div class="btnrow"><button type="button" class="btn primary" data-nov-crear="1">Enviar novedad</button></div></div>';
   return h;
@@ -2363,7 +2363,7 @@ function admNovedades(A){
   if(!NV.length) h+='<p class="empty">No hay novedades todavía.</p>';
   NV.forEach(function(n){
     var at=n.estado==='atendida';
-    h+='<div class="an-row"><p class="d" style="margin:0 0 4px"><span class="pill '+(at?'ok':n.etiqueta==='anomalia'?'bad':n.etiqueta==='solicitud'?'warn':'info')+'">'+esc(NOV_ET[n.etiqueta]||n.etiqueta)+'</span> <span class="small">'+fechaCorta((n.fecha||'').slice(0,10))+(n.lote?' · lote '+esc(n.lote):'')+' · '+esc(n.por||'')+(n.origen&&NOV_ORIGEN[n.origen]?' ('+NOV_ORIGEN[n.origen]+')':'')+'</span></p><p style="margin:0">'+esc(n.texto)+'</p>';
+    h+='<div class="an-row"><p class="d" style="margin:0 0 4px"><span class="pill '+(at?'ok':n.etiqueta==='anomalia'?'bad':n.etiqueta==='solicitud'?'warn':'info')+'">'+esc(NOV_ET[n.etiqueta]||n.etiqueta)+'</span> <span class="small">'+fechaCorta((n.fecha||'').slice(0,10))+(n.lote?' · lote '+esc(n.lote):'')+' · '+esc(n.por||'')+(n.origen&&NOV_ORIGEN[n.origen]?' ('+NOV_ORIGEN[n.origen]+')':'')+(n.texto_original&&puedeAtender?' · <span title="Texto original: '+esc(n.texto_original)+'" style="cursor:help;text-decoration:underline dotted">redacción corregida</span>':'')+'</span></p><p style="margin:0">'+esc(n.texto)+'</p>';
     if(n.fotos&&n.fotos.length) h+='<p class="d acc" style="margin-top:4px">'+verFotos(n.fotos,'Foto de la novedad')+'</p>';
     if(at) h+='<p class="small" style="color:var(--ok);margin-top:4px">Atendida'+(n.atendido_por?' por '+esc(n.atendido_por):'')+(n.respuesta?': '+esc(n.respuesta):'')+'</p>';
     else if(puedeAtender) h+='<div class="g2 tight" style="margin-top:6px"><input id="nov-resp-'+n.id+'" type="text" placeholder="Respuesta (opcional)"><button type="button" class="btn primary sm" data-nov-atender="'+n.id+'">Marcar atendida</button></div>';
@@ -2744,6 +2744,13 @@ function leerAdjunto(input,cb){
   if(f.size>10*1024*1024){toast('El archivo pesa más de 10 MB.');input.value='';return;}
   var rd=new FileReader(); rd.onload=function(){cb({b64:String(rd.result).split(',')[1],nombre:f.name,mime:f.type||'application/octet-stream'});}; rd.readAsDataURL(f);
 }
+function iaBtn(id,ctx){return '<p class="small" style="margin:4px 0 0"><button type="button" class="linkbtn" data-ia="'+id+'|'+esc(ctx)+'">&#10022; Mejorar redacción con IA</button> <span id="'+id+'-ia" class="small"></span></p>';}
+function iaAccion(t){
+  if(t.dataset.ia){var q=t.dataset.ia.split('|'),ta=$(q[0]);if(!ta)return true;var v=ta.value;if(!v.trim()){toast('Escribe primero el texto.');return true;}var inf=$(q[0]+'-ia');t.disabled=true;if(inf)inf.textContent='Corrigiendo…';
+    llamar('mejorarRedaccion',[S.pin,v,q[1]],function(r){t.disabled=false;if(r&&r.texto&&r.texto!==v){ta.dataset.prev=v;ta.value=r.texto;if(inf)inf.innerHTML='Texto corregido · <button type="button" class="linkbtn" data-ia-undo="'+q[0]+'">Volver al mío</button>';}else if(inf)inf.textContent='El texto ya estaba bien.';},function(m){t.disabled=false;if(inf)inf.textContent='';toast(m);});return true;}
+  if(t.dataset.iaUndo){var ta2=$(t.dataset.iaUndo);if(ta2&&ta2.dataset.prev!==undefined)ta2.value=ta2.dataset.prev;var inf2=$(t.dataset.iaUndo+'-ia');if(inf2)inf2.textContent='';return true;}
+  return false;
+}
 function errForm(m){var e=$('f-err');if(e){e.textContent=m;e.hidden=false;}else toast(m);}
 function valorDe(id){var el=$(id);return el?(parseInt(String(el.value).replace(/\D/g,''),10)||0):0;}
 function vDe(id){var el=$(id);return el?el.value:'';}
@@ -2870,6 +2877,7 @@ document.addEventListener('click',function(e){
   if(usuariosAccion(t)) return;
   if(reservasAccion(t)) return;
   if(reservasAdmAccion(t)) return;
+  if(iaAccion(t)) return;
   if(igAccion(t)) return;
   if(contaAccion(t)) return;
   if(cuentasAccion(t)) return;
