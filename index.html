@@ -438,6 +438,7 @@ footer{margin:18px 0 0;padding:0 0 96px;font-size:12px}
 .pill.info{background:var(--info-bg);color:var(--info)}
 .pc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:4px 0 12px}
 .pc-th{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;aspect-ratio:9/16;background:var(--soft)}
+.fp-th{aspect-ratio:4/3;padding:0;cursor:pointer}.fp-th img{display:block;width:100%;height:100%;object-fit:cover}
 .pc-th img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
 .pc-th .n{position:absolute;left:6px;top:6px;background:var(--acc);color:#fff;font-weight:800;font-size:12px;border-radius:999px;min-width:22px;height:22px;display:grid;place-items:center;padding:0 6px}
 .pc-th .x{position:absolute;right:4px;top:4px;width:26px;height:26px;border-radius:999px;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:18px;line-height:1;cursor:pointer;font-family:inherit}
@@ -1415,7 +1416,7 @@ function botonRecibo(r,txt){
   var ruta=r.ruta||(r.pdf?'NOMINA NEDER/'+r.pdf:''); if(!ruta) return '';
   return '<button type="button" class="linkbtn" data-vruta="'+esc(ruta)+'" data-tit="Recibo de nómina '+esc(r.num||r.periodo||'')+'">'+txt+'</button>';
 }
-/* --- v2.37: pantallazos del cuadre diario --- */
+/* --- v2.38: pantallazos del cuadre diario --- */
 function fechaHora(iso){if(!iso)return '';var s=String(iso),d=s.slice(0,10),t=s.slice(11,16);if(!t)return fechaCorta(d);var h=parseInt(t.slice(0,2),10),m=t.slice(3,5),ap=h>=12?'p. m.':'a. m.';h=h%12||12;return fechaCorta(d)+' '+h+':'+m+' '+ap;}
 function diasFaltan(ultimo){var out=[],d=new Date(ultimo+'T12:00:00'),hoy=hoyISO();for(var i=0;i<60;i++){d.setDate(d.getDate()+1);var iso=d.toISOString().slice(0,10);if(iso>=hoy)break;out.push(iso);}return out;}
 function admCuadre(A){
@@ -1446,7 +1447,7 @@ function pcRow(b){
   return h+'<p class="d" style="margin-top:4px">'+est+'</p></div></div>';
 }
 /* lee una imagen; si pesa más de 1,2 MB la reduce (JPEG, lado mayor 2000 px) para que suba rápido desde el celular.
-   Además genera una miniatura (`min`, JPEG de hasta 900 px) que la función guarda al lado de la foto para los PDF (v2.37). */
+   Además genera una miniatura (`min`, JPEG de hasta 900 px) que la función guarda al lado de la foto para los PDF (v2.38). */
 function leerCaptura(f,cb){
   var rd=new FileReader();
   rd.onload=function(){
@@ -1530,7 +1531,7 @@ function formEgreso(){
     '<div class="btnrow"><button type="button" class="btn primary" data-fsend="egreso">'+(F.factura_id?'Guardar pago':'Guardar gasto')+'</button><button type="button" class="btn ghost" data-form="">Cancelar</button></div></form>';
 }
 
-/* --- facturas por pagar (dentro de Egresos, v2.37) --- */
+/* --- facturas por pagar (dentro de Egresos, v2.38) --- */
 function facturasPorPagar(A){
   var F=(A.facturas||[]), pp=F.filter(function(f){return f.estado!=='pagada';}).sort(function(a,b){return String(a.vence||'9').localeCompare(String(b.vence||'9'));}), pg=F.filter(function(f){return f.estado==='pagada';}).reverse();
   var h='<div class="card in"><div class="admin-head"><h3 style="margin:0">'+I.mail+'Facturas por pagar'+(pp.length?' <span class="pill warn">'+pp.length+'</span>':'')+'</h3></div>';
@@ -1669,7 +1670,7 @@ function admResumen(A,pend,pz){
   return h;
 }
 
-/* --- v2.37: reservas del salón social y la piscina, avisos, mis datos --- */
+/* --- v2.38: reservas del salón social y la piscina, avisos, mis datos --- */
 var ESPACIOS={salon:'Salón social',piscina:'Piscina'};
 var DIAS_SEM=['L','M','M','J','V','S','D'];
 function pesos(n){return fmt(n||0);}
@@ -1806,7 +1807,7 @@ function desactivarAvisos(modo){
   }).catch(function(e){toast('No se pudo desactivar: '+(e&&e.message||e));});
 }
 
-/* --- v2.37: panel amigable (inicio con tarjetas) --- */
+/* --- v2.38: panel amigable (inicio con tarjetas) --- */
 var SEC={
   inicio:{t:'Inicio',ic:I.home,d:''},
   confirmar:{t:'Pagos por confirmar',ic:I.camera,d:'Pagos reportados por los propietarios y solicitudes de paz y salvo.'},
@@ -1867,14 +1868,14 @@ function admInicio(A){
   if(T.reservas&&A.reservas&&(A.reservas.manana||[]).length) h+='<div class="card in aviso-res"><div class="aviso-ico">'+I_CAL+'</div><div><strong>Mañana: '+A.reservas.manana.map(function(r){return esc(r.espacio_nombre)+' · '+esc(etiqAdm(r.lote))+' ('+esc(r.nombre)+')';}).join(' · ')+'</strong><p class="small" style="margin:2px 0 0"><button type="button" class="linkbtn" data-adm-go="reservas">Ver reservas</button></p></div></div>';
   h+='<div class="sec-grid">'+modulosPermitidos().map(function(x){var n=0;x.tabs.forEach(function(k){n+=P[k]||0;});return '<button type="button" class="sec-card" data-adm-mod="'+x.m.id+'"><span class="sec-ic">'+x.m.ic+'</span><span class="sec-t">'+esc(x.m.t)+(n?'<span class="badge">'+n+'</span>':'')+'</span><span class="sec-d">'+x.tabs.map(function(k){var b=P[k]||0;return esc(SUBT[k])+(b?' <b>('+b+')</b>':'');}).join(' · ')+'</span></button>';}).join('')+'</div>';
   if(S.perfil&&S.perfil.tipo==='usuario') h+='<div class="card in"><p class="small" style="margin:0">'+(S.pushLocal
-    ?'<span style="color:var(--ok)">'+I.check+' <b>Avisos activados en este aparato.</b></span> Te llegan pagos, paz y salvos, reservas, anotaciones de portería, faltas, tareas, novedades y agua. <button type="button" class="linkbtn" id="b-push-test">Enviar una prueba</button> · <button type="button" class="linkbtn" id="b-push-off">Desactivar en este aparato</button>'
+    ?'<span style="color:var(--ok)">'+I.check+' <b>Avisos activados en este aparato.</b></span> Te llega solo lo que te compete según tus pestañas (la administración recibe todo). <button type="button" class="linkbtn" id="b-push-test">Enviar una prueba</button> · <button type="button" class="linkbtn" id="b-push-off">Desactivar en este aparato</button>'
     :(S.admin.push_activo?'Tienes avisos activados en otro aparato. ':'')+'Para recibirlos en <b>este</b> teléfono o computador actívalos aquí (es por aparato): <button type="button" class="linkbtn" id="b-push-eq">'+I.alert+' Activar avisos en este aparato</button>')+'</p></div>';
   return h;
 }
 function etiqAdm(l){return String(l).indexOf('y')>0?'Lotes '+String(l).replace('y',' y '):'Lote '+l;}
 function admAyuda(k){var d=(SEC[k]||{}).d; return d?'<p class="small ayuda">'+esc(d)+'</p>':'';}
 
-/* --- v2.37: reservas en el panel --- */
+/* --- v2.38: reservas en el panel --- */
 function admReservas(A){
   var R0=A.reservas||{reservas:[],canceladas:[],manana:[]}, hoy=R0.hoy||hoyISO(), ym=S.rvMesAdm||ymDe(hoy);
   // el resumen trae solo desde hoy; para ver un mes completo (incluido lo pasado) se pide ese mes y se guarda
@@ -1920,7 +1921,7 @@ function reservasAdmAccion(t){
   return false;
 }
 
-/* --- v2.37: contabilidad (contadora y administración) --- */
+/* --- v2.38: contabilidad (contadora y administración) --- */
 function primerDiaMes(ym){return ym+'-01';}
 function ultimoDiaMes(ym){return ym+'-'+('0'+diasDe(ym)).slice(-2);}
 function tarjetaPresupuesto(PR){
@@ -1964,7 +1965,7 @@ function contaAccion(t){
   return false;
 }
 
-/* --- v2.37: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
+/* --- v2.38: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
 function admResumen(A,pend,pz){
   if(!S.estad){ llamar('estad',[S.pin,S.resMes||''],function(r){S.estad=r;S.resMes=r.ym;renderAdmin();},function(m){S.estad={error:m};renderAdmin();}); return '<div class="card in"><p class="empty">Cargando el resumen…</p></div>'; }
   if(S.estad.error) return '<div class="card in"><p class="err">'+esc(S.estad.error)+'</p><button type="button" class="btn ghost sm" data-adm-go="inicio">Volver</button></div>';
@@ -2036,7 +2037,7 @@ function desatrasoPanel(D){
   return h+'</div>';
 }
 
-/* --- v2.37: cuentas por pagar del mes (gastos fijos) --- */
+/* --- v2.38: cuentas por pagar del mes (gastos fijos) --- */
 function cuentasPorPagar(A){
   var D=S.cpp||A.cuentas_pagar; if(!D) return '';
   var ym=D.ym, R=D.resumen||{}, items=D.items||[], tope=(A.cuentas_pagar&&A.cuentas_pagar.ym)||ym, ver=soloVer('facturas');
@@ -2097,7 +2098,7 @@ document.addEventListener('change',function(e){
   if(el.id==='nom-cmp-file'){var num=S.nomCmpNum;var f=(el.files||[])[0];if(!f||!num)return;leerCaptura(f,function(x){llamar('nominaComprobante',[S.pin,S.quien,num,{b64:x.b64,nombre:x.nombre,mime:x.mime}],function(){S.nomCmpNum=null;recargarAdmin('Comprobante cargado para el recibo '+num+'.');},function(m){toast(m);});});el.value='';return;}
 });
 
-/* --- v2.37: faltas al reglamento, tareas del operario, comprobante de nómina --- */
+/* --- v2.38: faltas al reglamento, tareas del operario, comprobante de nómina --- */
 function esAdmin(){return S.perfil&&(S.perfil.rol==='admin'||S.perfil.rol==='coadmin');}
 function fotosPick(key,label){
   var P=S[key]||(S[key]={files:[]});
@@ -2658,7 +2659,7 @@ function renderMisFaltas(){
   if(!S.faMias.length) return;
   var h='<div class="card in" id="mis-faltas"><h3>'+I.alert+'Observaciones de la administración</h3>';
   S.faMias.forEach(function(f){
-    h+='<div class="eg"><div class="ic q">'+I.alert+'</div><div class="eg-main"><p class="t">'+esc(f.tipo)+'</p><p class="d">'+esc(f.fecha)+(f.lote?' · lote '+esc(f.lote):'')+(f.articulo?' · '+esc(f.articulo):'')+'</p><p class="d">'+esc(f.comentario||f.comunicado||'')+'</p>'+(f.correctivo?'<p class="d"><strong>'+esc(f.correctivo)+'</strong>'+(f.multa>0?' · '+fmt(f.multa):'')+'</p>':'')+(f.llamado_num?'<p class="d">'+esc(nivelFalta(f.nivel))+' <strong>'+esc(f.llamado_num)+'</strong>'+(f.plazo?' · plazo hasta el '+esc(f.plazo):'')+(f.llamado_pdf&&f.llamado_pdf.url?' · <a class="linkbtn" href="'+esc(f.llamado_pdf.url)+'" target="_blank" rel="noopener">Ver el documento (PDF)</a>':'')+'</p>':'')+((f.fotos||[]).length?'<p class="d acc">'+(f.fotos||[]).map(function(x,i){return '<a class="linkbtn" href="'+esc(x.url)+'" target="_blank" rel="noopener">Ver foto'+(f.fotos.length>1?' '+(i+1):'')+'</a>';}).join(' · ')+'</p>':'')+'</div></div>';
+    h+='<div class="eg"><div class="ic q">'+I.alert+'</div><div class="eg-main"><p class="t">'+esc(f.tipo)+'</p><p class="d">'+esc(f.fecha)+(f.lote?' · lote '+esc(f.lote):'')+(f.articulo?' · '+esc(f.articulo):'')+'</p><p class="d">'+esc(f.comentario||f.comunicado||'')+'</p>'+(f.correctivo?'<p class="d"><strong>'+esc(f.correctivo)+'</strong>'+(f.multa>0?' · '+fmt(f.multa):'')+'</p>':'')+(f.llamado_num?'<p class="d">'+esc(nivelFalta(f.nivel))+' <strong>'+esc(f.llamado_num)+'</strong>'+(f.plazo?' · plazo hasta el '+esc(f.plazo):'')+(f.llamado_pdf&&f.llamado_pdf.path?' · <button type="button" class="linkbtn" data-fp="'+esc(f.id)+'|pdf" data-tit="'+esc(f.llamado_num)+' · '+esc(f.tipo)+'">Ver el documento (PDF)</button>':'')+'</p>':'')+((f.fotos||[]).length?'<div class="pc-grid" style="margin-top:8px">'+(f.fotos||[]).map(function(x,i){return '<button type="button" class="pc-th fp-th" data-fp="'+esc(f.id)+'|foto:'+i+'" data-tit="Foto '+(i+1)+' · '+esc(f.tipo)+'" aria-label="Ver foto '+(i+1)+'"><img src="'+esc(x.url)+'" alt="Foto '+(i+1)+'" loading="lazy"></button>';}).join('')+'</div>':'')+'</div></div>';
   });
   h+='<p class="small" style="margin:8px 0 0">Si tienes dudas, escríbenos por WhatsApp.</p></div>';
   var md=document.getElementById('mis-datos'); if(md) md.insertAdjacentHTML('beforebegin',h); else $('p-cuenta').insertAdjacentHTML('beforeend',h);
@@ -2771,6 +2772,7 @@ document.addEventListener('click',function(e){
   if(t.id==='vz-x'){cerrarVisor();return;}
   if(t.id==='vz-dl'){descargarVisor();return;}
   if(t.dataset.ver){if(S.pin&&!$('v-admin').hidden)verDoc(t.dataset.tit||'Documento','adminLeerArchivo',[S.pin,'doc',t.dataset.ver]);else if(S.doc)verDoc(t.dataset.tit||'Documento','leerDocumento',[S.doc,t.dataset.ver]);return;}
+  if(t.dataset.fp){var fpq=t.dataset.fp.split('|');verDoc(t.dataset.tit||'Documento','faltaDocPropietario',[S.doc,fpq[0],fpq[1]]);return;}
   if(t.dataset.vid!==undefined&&t.dataset.vid){verDoc(t.dataset.tit||'Documento','adminLeerArchivo',[S.pin,'id',t.dataset.vid]);return;}
   if(t.dataset.vruta){verDoc(t.dataset.tit||'Documento','adminLeerArchivo',[S.pin,'ruta',t.dataset.vruta]);return;}
   if(!S.admin) return;
