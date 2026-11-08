@@ -1405,7 +1405,7 @@ function botonRecibo(r,txt){
   var ruta=r.ruta||(r.pdf?'NOMINA NEDER/'+r.pdf:''); if(!ruta) return '';
   return '<button type="button" class="linkbtn" data-vruta="'+esc(ruta)+'" data-tit="Recibo de nómina '+esc(r.num||r.periodo||'')+'">'+txt+'</button>';
 }
-/* --- v2.28: pantallazos del cuadre diario --- */
+/* --- v2.29: pantallazos del cuadre diario --- */
 function fechaHora(iso){if(!iso)return '';var s=String(iso),d=s.slice(0,10),t=s.slice(11,16);if(!t)return fechaCorta(d);var h=parseInt(t.slice(0,2),10),m=t.slice(3,5),ap=h>=12?'p. m.':'a. m.';h=h%12||12;return fechaCorta(d)+' '+h+':'+m+' '+ap;}
 function diasFaltan(ultimo){var out=[],d=new Date(ultimo+'T12:00:00'),hoy=hoyISO();for(var i=0;i<60;i++){d.setDate(d.getDate()+1);var iso=d.toISOString().slice(0,10);if(iso>=hoy)break;out.push(iso);}return out;}
 function admCuadre(A){
@@ -1616,7 +1616,7 @@ function admResumen(A,pend,pz){
   return h;
 }
 
-/* --- v2.28: reservas del salón social y la piscina, avisos, mis datos --- */
+/* --- v2.29: reservas del salón social y la piscina, avisos, mis datos --- */
 var ESPACIOS={salon:'Salón social',piscina:'Piscina'};
 var DIAS_SEM=['L','M','M','J','V','S','D'];
 function pesos(n){return fmt(n||0);}
@@ -1735,7 +1735,7 @@ function activarAvisos(doc,token){
 }
 try{ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){}); }catch(e){}
 
-/* --- v2.28: panel amigable (inicio con tarjetas) --- */
+/* --- v2.29: panel amigable (inicio con tarjetas) --- */
 var SEC={
   inicio:{t:'Inicio',ic:I.home,d:''},
   confirmar:{t:'Pagos por confirmar',ic:I.camera,d:'Pagos reportados por los propietarios y solicitudes de paz y salvo.'},
@@ -1799,7 +1799,7 @@ function admInicio(A){
 function etiqAdm(l){return String(l).indexOf('y')>0?'Lotes '+String(l).replace('y',' y '):'Lote '+l;}
 function admAyuda(k){var d=(SEC[k]||{}).d; return d?'<p class="small ayuda">'+esc(d)+'</p>':'';}
 
-/* --- v2.28: reservas en el panel --- */
+/* --- v2.29: reservas en el panel --- */
 function admReservas(A){
   var R=A.reservas||{reservas:[],canceladas:[],manana:[]}, hoy=R.hoy||hoyISO(), ym=S.rvMesAdm||ymDe(hoy);
   var occ={}; (R.reservas||[]).forEach(function(r){occ[r.espacio+'|'+r.fecha]=r;});
@@ -1840,7 +1840,7 @@ function reservasAdmAccion(t){
   return false;
 }
 
-/* --- v2.28: contabilidad (contadora y administración) --- */
+/* --- v2.29: contabilidad (contadora y administración) --- */
 function primerDiaMes(ym){return ym+'-01';}
 function ultimoDiaMes(ym){return ym+'-'+('0'+diasDe(ym)).slice(-2);}
 function tarjetaPresupuesto(PR){
@@ -1883,7 +1883,7 @@ function contaAccion(t){
   return false;
 }
 
-/* --- v2.28: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
+/* --- v2.29: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
 function admResumen(A,pend,pz){
   if(!S.estad){ llamar('estad',[S.pin,S.resMes||''],function(r){S.estad=r;S.resMes=r.ym;renderAdmin();},function(m){S.estad={error:m};renderAdmin();}); return '<div class="card in"><p class="empty">Cargando el resumen…</p></div>'; }
   if(S.estad.error) return '<div class="card in"><p class="err">'+esc(S.estad.error)+'</p><button type="button" class="btn ghost sm" data-adm-go="inicio">Volver</button></div>';
@@ -1955,7 +1955,7 @@ function desatrasoPanel(D){
   return h+'</div>';
 }
 
-/* --- v2.28: cuentas por pagar del mes (gastos fijos) --- */
+/* --- v2.29: cuentas por pagar del mes (gastos fijos) --- */
 function cuentasPorPagar(A){
   var D=S.cpp||A.cuentas_pagar; if(!D) return '';
   var ym=D.ym, R=D.resumen||{}, items=D.items||[], tope=(A.cuentas_pagar&&A.cuentas_pagar.ym)||ym, ver=soloVer('facturas');
@@ -2015,7 +2015,7 @@ document.addEventListener('change',function(e){
   if(el.id==='nom-cmp-file'){var num=S.nomCmpNum;var f=(el.files||[])[0];if(!f||!num)return;leerCaptura(f,function(x){llamar('nominaComprobante',[S.pin,S.quien,num,{b64:x.b64,nombre:x.nombre,mime:x.mime}],function(){S.nomCmpNum=null;recargarAdmin('Comprobante cargado para el recibo '+num+'.');},function(m){toast(m);});});el.value='';return;}
 });
 
-/* --- v2.28: faltas al reglamento, tareas del operario, comprobante de nómina --- */
+/* --- v2.29: faltas al reglamento, tareas del operario, comprobante de nómina --- */
 function esAdmin(){return S.perfil&&(S.perfil.rol==='admin'||S.perfil.rol==='coadmin');}
 function fotosPick(key,label){
   var P=S[key]||(S[key]={files:[]});
@@ -2070,23 +2070,26 @@ function faltaRow(f,conAcciones){
   if(conAcciones){
     if(S.faDec===f.id) h+=faltaDecidirForm(f);
     else h+='<p class="d acc"><button type="button" class="linkbtn" data-fa-dec="'+esc(f.id)+'">Revisar / decidir</button></p>';
-  } else if(f.estado==='aprobada'&&f.telefono){
-    h+='<p class="d acc"><a class="linkbtn" target="_blank" rel="noopener" href="'+waFalta(f)+'">Enviar por WhatsApp</a></p>';
+  } else if(f.estado==='aprobada'){
+    if(f.llamado_num) h+='<p class="d"><strong>'+esc(f.llamado_num)+'</strong> · '+esc(nivelFalta(f.nivel))+(f.plazo?' · plazo hasta el '+esc(f.plazo):'')+(f.llamado_pdf&&f.llamado_pdf.path?' · <button type="button" class="linkbtn" data-vid="'+esc(f.llamado_pdf.path)+'" data-tit="'+esc(f.llamado_num)+' · '+esc(f.etiqueta||'')+'">Ver PDF</button>':'')+'</p>';
+    else if(esAdmin()) h+='<div class="frm" style="margin-top:6px"><label for="fc-'+esc(f.id)+'">Correctivo (va en el PDF)</label><input type="text" id="fc-'+esc(f.id)+'" value="'+esc(f.correctivo||'')+'"><div class="g2 tight" style="margin-top:6px"><input type="date" id="fg-'+esc(f.id)+'" value="'+plazoDefecto(7)+'" aria-label="Plazo para corregir"><button type="button" class="btn ghost sm" data-fa-gen="'+esc(f.id)+'">Generar llamado (PDF)</button></div></div>';
+    if(f.telefono) h+='<p class="d acc"><a class="linkbtn" target="_blank" rel="noopener" href="'+waFalta(f)+'">Enviar por WhatsApp</a></p>';
   }
   h+='</div></div>';
   return h;
 }
 function faltaDecidirForm(f){
   var tipos=(S.admin.tipos_falta||[]), ts=tipos.filter(function(t){return t.id===f.tipo_id;})[0]||{};
-  var d=S.faDecD||(S.faDecD={comentario:f.descripcion,articulo:ts.articulo||'',correctivo:ts.correctivo||'',multa:'',visible:true,comunicado:''});
+  var d=S.faDecD||(S.faDecD={comentario:f.descripcion,articulo:ts.articulo||'',correctivo:ts.correctivo||'',multa:'',visible:true,comunicado:'',plazo:plazoDefecto(7)});
   var h='<div class="frm" style="margin-top:8px"><p class="frm-t">Revisar falta '+esc(f.id)+'</p>';
   if(ts.nota_legal) h+='<div class="aviso-legal">'+I.alert+'<span><strong>Nota legal:</strong> '+esc(ts.nota_legal)+'</span></div>';
   h+='<label for="fd-com">Comentario (lo puedes editar)</label><textarea id="fd-com">'+esc(d.comentario||'')+'</textarea>';
   h+='<div class="g2"><div class="field"><label for="fd-art">Artículo</label><input id="fd-art" type="text" value="'+esc(d.articulo||'')+'"></div><div class="field"><label for="fd-multa">Multa (opcional)</label><input id="fd-multa" class="money-in" inputmode="numeric" placeholder="$0" value="'+(d.multa?miles(d.multa):'')+'"></div></div>';
   h+='<label for="fd-cor">Correctivo</label><input id="fd-cor" type="text" value="'+esc(d.correctivo||'')+'">';
+  h+='<div class="g2" style="margin-top:8px"><div class="field"><label for="fd-plazo">Plazo para corregir (va en el PDF)</label><input id="fd-plazo" type="date" value="'+esc(d.plazo||'')+'"></div><div class="field"><label>&nbsp;</label><button type="button" class="btn ghost sm" data-fa-vista="'+esc(f.id)+'">Vista previa del llamado</button></div></div>';
   h+='<label for="fd-com2" style="margin-top:8px">Comunicado para el propietario (opcional)</label><textarea id="fd-com2" placeholder="Si quieres enviarle un texto…">'+esc(d.comunicado||'')+'</textarea>';
   h+='<label class="chk" style="margin-top:8px"><input type="checkbox" id="fd-vis"'+(d.visible!==false?' checked':'')+'> El propietario puede ver esta falta</label>';
-  h+='<p class="small" style="margin:6px 0 0">La multa queda registrada; no se cobra en la cuenta sin tu confirmación aparte (debido proceso).</p><p id="f-err" class="err" hidden></p>';
+  h+='<p class="small" style="margin:6px 0 0">Al aprobar, Supabase genera solo el PDF del llamado con consecutivo LL y lo deja en el portal del propietario. El nivel sale de las faltas aprobadas del mismo tipo para el lote: 1.º llamado de atención con plazo (sin multa) → 2.º requerimiento escrito → 3.º o más, solicitud de multa de hasta 2 cuotas ante el Consejo/Asamblea (Ley 675, arts. 59-60). La multa queda registrada; no se cobra en la cuenta sin tu confirmación aparte (debido proceso).</p><p id="f-err" class="err" hidden></p>';
   h+='<div class="btnrow" style="margin-top:10px"><button type="button" class="btn primary sm" data-fa-ok="'+esc(f.id)+'">Aprobar</button><button type="button" class="btn badb sm" data-fa-no="'+esc(f.id)+'">Rechazar</button><button type="button" class="btn ghost sm" data-fa-cancel="1">Cerrar</button></div></div>';
   return h;
 }
@@ -2098,9 +2101,14 @@ function tiposFaltaEditor(tipos){
 }
 function waFalta(f){
   var tel=String(f.telefono||'').replace(/\D/g,''); if(tel.length===10) tel='57'+tel;
-  var t='Hola'+(f.propietario?', '+String(f.propietario).split(' ').slice(0,1).join(' '):'')+'. Te hablamos de la administración de Quintas de Lourdes. '+(f.comunicado||('Queremos comentarte sobre una observación en '+(f.etiqueta||'tu lote')+': '+f.tipo+'. '+(f.correctivo||'')))+' ¡Quedamos súper atentos!';
+  var nom=String(f.saludo||'').trim(); nom=nom?', '+nom:'';
+  var cuerpo=f.llamado_num?('Te compartimos el '+nivelFalta(f.nivel,true)+' N° '+f.llamado_num+' por '+String(f.tipo||'').toLowerCase()+' en '+(f.etiqueta||'tu lote')+(f.plazo?', con plazo hasta el '+f.plazo:'')+'. El documento en PDF ya está en tu portal: https://quintasdelourdes.github.io (Observaciones de la administración).'+(f.comunicado?' '+f.comunicado:''))
+    :(f.comunicado||('Queremos comentarte sobre una observación en '+(f.etiqueta||'tu lote')+': '+f.tipo+'. '+(f.correctivo||'')));
+  var t='Hola'+nom+'. Te hablamos de la administración de Quintas de Lourdes. '+cuerpo+' ¡Quedamos súper atentos!';
   return 'https://wa.me/'+tel+'?text='+encodeURIComponent(t);
 }
+function nivelFalta(n,doc){n=parseInt(n,10)||1;if(doc) return n===1?'llamado de atención':n===2?'segundo requerimiento escrito':'requerimiento con solicitud de sanción';return n===1?'1.er llamado de atención':n===2?'2.º requerimiento escrito':n+'.º llamado · solicitud de multa';}
+function plazoDefecto(dias){var d=new Date(Date.now()-5*36e5+(dias||7)*864e5);return d.toISOString().slice(0,10);}
 function nomCorto(n){return String(n||'').split(' ').slice(0,2).join(' ');}
 function cardEmergencia(A){
   var E=A.dir_emergencia||[];
@@ -2331,11 +2339,14 @@ function faltasAccion(t){
   }
   if(t.hasAttribute('data-fa-dec')){S.faDec=t.getAttribute('data-fa-dec');S.faDecD=null;renderAdmin();var fm=document.querySelector('#v-admin .frm');if(fm)fm.scrollIntoView({block:'nearest'});return true;}
   if(t.hasAttribute('data-fa-cancel')){S.faDec=null;S.faDecD=null;renderAdmin();return true;}
+  if(t.hasAttribute('data-fa-vista')){var idv=t.getAttribute('data-fa-vista'),plv=$('fd-plazo')?$('fd-plazo').value:'';if(S.faDecD){S.faDecD.comentario=$('fd-com')?$('fd-com').value:S.faDecD.comentario;S.faDecD.plazo=plv;}verDoc('Vista previa del llamado · '+idv,'faltaLlamadoVista',[S.pin,idv,plv,$('fd-cor')?$('fd-cor').value:'']);return true;}
+  if(t.hasAttribute('data-fa-gen')){var idg=t.getAttribute('data-fa-gen'),e=$('fg-'+idg),plg=e?e.value:'';if(!plg){toast('Escoge el plazo para corregir.');return true;}if(!confirm('¿Generar el llamado de atención en PDF para '+idg+'? Se asigna el consecutivo LL y el propietario lo verá en su portal.'))return true;
+    var ec=$('fc-'+idg),cog=ec?ec.value:'';llamar('faltaGenerarLlamado',[S.pin,idg,plg,cog],function(r){recargarAdmin('Llamado '+(r&&r.llamado_num||'')+' generado.');},function(m){toast(m);});return true;}
   if(t.hasAttribute('data-fa-ok')||t.hasAttribute('data-fa-no')){
     var id=t.getAttribute('data-fa-ok')||t.getAttribute('data-fa-no'), ap=t.hasAttribute('data-fa-ok');
-    var com=$('fd-com')?$('fd-com').value:'', art=$('fd-art')?$('fd-art').value:'', cor=$('fd-cor')?$('fd-cor').value:'', mu=$('fd-multa')?$('fd-multa').value:'', vis=$('fd-vis')?$('fd-vis').checked:true, cmn=$('fd-com2')?$('fd-com2').value:'';
+    var com=$('fd-com')?$('fd-com').value:'', art=$('fd-art')?$('fd-art').value:'', cor=$('fd-cor')?$('fd-cor').value:'', mu=$('fd-multa')?$('fd-multa').value:'', vis=$('fd-vis')?$('fd-vis').checked:true, cmn=$('fd-com2')?$('fd-com2').value:'', plz=$('fd-plazo')?$('fd-plazo').value:'';
     if(!ap){ if(!confirm('¿Rechazar esta falta?')) return true; }
-    llamar('faltaDecidir',[S.pin,id,ap?'aprobar':'rechazar',com,art,cor,mu,vis,cmn,ap?'':com],function(){S.faDec=null;S.faDecD=null;recargarAdmin(ap?'Falta aprobada.':'Falta rechazada.');},errForm);
+    llamar('faltaDecidir',[S.pin,id,ap?'aprobar':'rechazar',com,art,cor,mu,vis,cmn,ap?'':com,ap?plz:''],function(r){S.faDec=null;S.faDecD=null;var L=r&&r.llamado;recargarAdmin(ap?('Falta aprobada.'+(L&&L.llamado_num?' Llamado '+L.llamado_num+' generado.':(r&&r.llamado_error?' No se pudo generar el PDF: '+r.llamado_error:''))):'Falta rechazada.');},errForm);
     return true;
   }
   if(t.hasAttribute('data-tf-save')){
@@ -2427,7 +2438,7 @@ function renderMisFaltas(){
   if(!S.faMias.length) return;
   var h='<div class="card in" id="mis-faltas"><h3>'+I.alert+'Observaciones de la administración</h3>';
   S.faMias.forEach(function(f){
-    h+='<div class="eg"><div class="ic q">'+I.alert+'</div><div class="eg-main"><p class="t">'+esc(f.tipo)+'</p><p class="d">'+esc(f.fecha)+(f.lote?' · lote '+esc(f.lote):'')+(f.articulo?' · '+esc(f.articulo):'')+'</p><p class="d">'+esc(f.comentario||f.comunicado||'')+'</p>'+(f.correctivo?'<p class="d"><strong>'+esc(f.correctivo)+'</strong>'+(f.multa>0?' · '+fmt(f.multa):'')+'</p>':'')+((f.fotos||[]).length?'<p class="d acc">'+(f.fotos||[]).map(function(x,i){return '<a class="linkbtn" href="'+esc(x.url)+'" target="_blank" rel="noopener">Ver foto'+(f.fotos.length>1?' '+(i+1):'')+'</a>';}).join(' · ')+'</p>':'')+'</div></div>';
+    h+='<div class="eg"><div class="ic q">'+I.alert+'</div><div class="eg-main"><p class="t">'+esc(f.tipo)+'</p><p class="d">'+esc(f.fecha)+(f.lote?' · lote '+esc(f.lote):'')+(f.articulo?' · '+esc(f.articulo):'')+'</p><p class="d">'+esc(f.comentario||f.comunicado||'')+'</p>'+(f.correctivo?'<p class="d"><strong>'+esc(f.correctivo)+'</strong>'+(f.multa>0?' · '+fmt(f.multa):'')+'</p>':'')+(f.llamado_num?'<p class="d">'+esc(nivelFalta(f.nivel))+' <strong>'+esc(f.llamado_num)+'</strong>'+(f.plazo?' · plazo hasta el '+esc(f.plazo):'')+(f.llamado_pdf&&f.llamado_pdf.url?' · <a class="linkbtn" href="'+esc(f.llamado_pdf.url)+'" target="_blank" rel="noopener">Ver el documento (PDF)</a>':'')+'</p>':'')+((f.fotos||[]).length?'<p class="d acc">'+(f.fotos||[]).map(function(x,i){return '<a class="linkbtn" href="'+esc(x.url)+'" target="_blank" rel="noopener">Ver foto'+(f.fotos.length>1?' '+(i+1):'')+'</a>';}).join(' · ')+'</p>':'')+'</div></div>';
   });
   h+='<p class="small" style="margin:8px 0 0">Si tienes dudas, escríbenos por WhatsApp.</p></div>';
   var md=document.getElementById('mis-datos'); if(md) md.insertAdjacentHTML('beforebegin',h); else $('p-cuenta').insertAdjacentHTML('beforeend',h);
