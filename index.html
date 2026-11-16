@@ -463,7 +463,7 @@ footer{margin:18px 0 0;padding:0 0 96px;font-size:12px}
 .g2.tight{grid-template-columns:1.6fr 1fr;gap:8px;margin-bottom:6px}
 .chk{display:flex!important;gap:8px;align-items:flex-start;font-weight:600!important;color:var(--ink)!important;font-size:13px!important;margin:4px 0 8px!important}
 .chk input{margin-top:3px;width:18px;height:18px;flex:none}
-/* v2.46 (#7): dentro de un formulario la casilla no se estira; el texto ocupa el resto del renglón */
+/* v2.47 (#7): dentro de un formulario la casilla no se estira; el texto ocupa el resto del renglón */
 .frm .field .chk input[type=checkbox],.frm .chk input[type=checkbox]{width:18px;min-width:18px;max-width:18px;height:18px;flex:none;padding:0;margin-top:2px}
 .chk{line-height:1.35}
 .cal-dia.cerr{background:repeating-linear-gradient(135deg,#E9EEF2 0 5px,#D2DCE5 5px 10px);border-color:#9FB1C0;color:#5B6B79;cursor:default}
@@ -471,15 +471,21 @@ footer{margin:18px 0 0;padding:0 0 96px;font-size:12px}
 .av-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
 .av-push{border-color:var(--warn);background:var(--warn-bg)}
 .ia-nota{margin:4px 0 0;font-size:12.5px;font-weight:700;color:var(--info)}
-/* v2.46: reglamentos. En el celular, a pantalla completa (zona del reloj y barra inferior del iPhone incluidas) */
+/* v2.47: reglamentos. En el celular, a pantalla completa (zona del reloj y barra inferior del iPhone incluidas) */
 .rg-card{max-height:88vh;max-height:88dvh}
 .rg-head{flex:none}
 .rg-body{flex:1 1 auto;min-height:0;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .rg-foot{flex:none;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--surface)}
 @media (max-width:640px){.rg-ov{padding:0;align-items:stretch;background:var(--surface)}.rg-card{max-width:none;max-height:none;height:100%;border-radius:0;box-shadow:none}.rg-head{padding-top:calc(12px + env(safe-area-inset-top,0px))}.rg-body{font-size:14px}}
-/* v2.46: piscina compartida — día con reservas de otros lotes (se puede reservar) */
+/* v2.47: piscina compartida — día con reservas de otros lotes (se puede reservar) */
 .cal-dia.comp{background:#EEF6FC;border-color:#9CC3E4}
 .cal-n{position:absolute;top:1px;right:4px;font-size:9px;font-weight:800;font-style:normal;line-height:1.3;color:#17496B}
+/* v2.47: reservas del panel — depósitos del salón por devolver (aparte, no se archivan) y archivadas bajo el calendario */
+.rv-dev{border:1px solid var(--line);border-left:4px solid var(--warn);background:var(--soft);border-radius:10px;padding:10px 12px 2px;margin:0 0 14px}
+.rv-dev .rv-item:first-of-type{border-top:0}
+.rv-sub{margin:0 0 2px;font-weight:800;font-size:14px}
+.rv-arch{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.rv-arch .rv-item:first-of-type{border-top:0}
 .prev{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px 12px;margin:6px 0 10px}
 .prev .row{padding:7px 0}
 .worker{background:var(--soft);border-radius:12px;padding:10px 12px;margin-top:10px}
@@ -1434,7 +1440,7 @@ function botonRecibo(r,txt){
   var ruta=r.ruta||(r.pdf?'NOMINA NEDER/'+r.pdf:''); if(!ruta) return '';
   return '<button type="button" class="linkbtn" data-vruta="'+esc(ruta)+'" data-tit="Recibo de nómina '+esc(r.num||r.periodo||'')+'">'+txt+'</button>';
 }
-/* --- v2.46: pantallazos del cuadre diario --- */
+/* --- v2.47: pantallazos del cuadre diario --- */
 function fechaHora(iso){if(!iso)return '';var s=String(iso),d=s.slice(0,10),t=s.slice(11,16);if(!t)return fechaCorta(d);var h=parseInt(t.slice(0,2),10),m=t.slice(3,5),ap=h>=12?'p. m.':'a. m.';h=h%12||12;return fechaCorta(d)+' '+h+':'+m+' '+ap;}
 function diasFaltan(ultimo){var out=[],d=new Date(ultimo+'T12:00:00'),hoy=hoyISO();for(var i=0;i<60;i++){d.setDate(d.getDate()+1);var iso=d.toISOString().slice(0,10);if(iso>=hoy)break;out.push(iso);}return out;}
 function admCuadre(A){
@@ -1465,7 +1471,7 @@ function pcRow(b){
   return h+'<p class="d" style="margin-top:4px">'+est+'</p></div></div>';
 }
 /* lee una imagen; si pesa más de 1,2 MB la reduce (JPEG, lado mayor 2000 px) para que suba rápido desde el celular.
-   Además genera una miniatura (`min`, JPEG de hasta 900 px) que la función guarda al lado de la foto para los PDF (v2.46). */
+   Además genera una miniatura (`min`, JPEG de hasta 900 px) que la función guarda al lado de la foto para los PDF (v2.47). */
 function leerCaptura(f,cb){
   var rd=new FileReader();
   rd.onload=function(){
@@ -1551,7 +1557,7 @@ function formEgreso(){
     '<div class="btnrow"><button type="button" class="btn primary" data-fsend="egreso">'+(F.factura_id?'Guardar pago':'Guardar gasto')+'</button><button type="button" class="btn ghost" data-form="">Cancelar</button></div></form>';
 }
 
-/* --- facturas por pagar (dentro de Egresos, v2.46) --- */
+/* --- facturas por pagar (dentro de Egresos, v2.47) --- */
 function facturasPorPagar(A){
   var F=(A.facturas||[]), pp=F.filter(function(f){return f.estado!=='pagada';}).sort(function(a,b){return String(a.vence||'9').localeCompare(String(b.vence||'9'));}), pg=F.filter(function(f){return f.estado==='pagada';}).reverse();
   var h='<div class="card in"><div class="admin-head"><h3 style="margin:0">'+I.mail+'Facturas por pagar'+(pp.length?' <span class="pill warn">'+pp.length+'</span>':'')+'</h3></div>';
@@ -1690,7 +1696,7 @@ function admResumen(A,pend,pz){
   return h;
 }
 
-/* --- v2.46: reservas del salón social y la piscina, avisos, mis datos --- */
+/* --- v2.47: reservas del salón social y la piscina, avisos, mis datos --- */
 var ESPACIOS={salon:'Salón social',piscina:'Piscina'};
 var DIAS_SEM=['L','M','M','J','V','S','D'];
 function pesos(n){return fmt(n||0);}
@@ -1726,7 +1732,7 @@ function renderReservas(){
   if(!S.RV){ el.innerHTML='<div class="card"><p class="empty">Cargando el calendario…</p></div>'; llamar('reservasVer',[S.doc,'2000-01-01','2100-01-01'],function(r){S.RV=r;S.rvMes=S.rvMes||ymDe(r.desde);S.rvEsp=S.rvEsp||'salon';renderReservas();},function(m){el.innerHTML='<div class="card"><p class="err">'+esc(m)+'</p></div>';}); return; }
   var R=S.RV, ym=S.rvMes, esp=S.rvEsp, hoy=R.hoy, lotes=S.D.prop.lotes, alDia=lotes.filter(function(l){return R.lotes_al_dia[l];});
   var occ={}; (R.ocupados||[]).forEach(function(o){occ[o.espacio+'|'+o.fecha]=o;});
-  var cerr={}; (R.piscina_cerrada||[]).forEach(function(c){cerr[c.fecha]=c;});   // v2.46: días con la piscina cerrada por mantenimiento
+  var cerr={}; (R.piscina_cerrada||[]).forEach(function(c){cerr[c.fecha]=c;});   // v2.47: días con la piscina cerrada por mantenimiento
   var h='<div class="card in"><h3>'+I_CAL+'Reservar el salón social o la piscina</h3><p class="lead" style="margin:0 0 10px">Se reserva por día completo, desde hoy y hasta '+esc(fechaLarga(R.hasta))+'. El salón social es exclusivo (una sola reserva por día); la piscina se comparte: varios lotes pueden reservarla el mismo día. '+(R.solo_al_dia?'Pueden reservar los lotes sin saldos de meses anteriores (la cuota del mes en curso se puede pagar hasta el último día del mes). ':'')+'El salón social tiene un depósito de '+pesos(R.deposito_salon)+' que se devuelve después del evento.</p>';
   h+='<div class="seg" style="margin:0 0 10px"><div class="tablist static" role="tablist">'+Object.keys(ESPACIOS).map(function(k){return '<button type="button" class="tab" data-rv-esp="'+k+'" aria-selected="'+(esp===k)+'"><span>'+ESPACIOS[k]+'</span></button>';}).join('')+'</div></div>';
   h+='<div class="cal-head"><button type="button" class="btn ghost sm" data-rv-mes="-1" '+(ym<=ymDe(R.desde)?'disabled':'')+'>'+I.back+'</button><strong>'+esc(nombreMes(ym))+'</strong><button type="button" class="btn ghost sm" data-rv-mes="1" '+(ym>=ymDe(R.hasta)?'disabled':'')+'>'+I.back.replace('<svg','<svg style="transform:scaleX(-1)"')+'</button></div>';
@@ -1762,7 +1768,7 @@ function renderReservas(){
 }
 var REGL_PISCINA="<p class=\"small\" style=\"margin:0 0 6px\">Manual de Convivencia · Sección 9, Art. 46 a 74 · Ley 1209 de 2008 (normas de seguridad en piscinas).</p>\n<div><span class=\"dato\"><b>Horario</b> 9:00 a. m. – 9:00 p. m.</span><span class=\"dato\"><b>Profundidad adultos</b> 1,30 m</span><span class=\"dato\"><b>Profundidad niños</b> 0,40 m</span><span class=\"dato\"><b>Aforo de invitados</b> 6 por casa</span></div>\n<p class=\"small\" style=\"margin:6px 0 0\">Mantenimiento y limpieza: <b>lunes</b> (martes cuando el lunes sea festivo). El servicio puede suspenderse por aviso previo de la administración. La reserva de la piscina <b>no es exclusiva</b>: otros propietarios pueden usarla al mismo tiempo.</p>\n<h4 class=\"ok\">Es obligatorio (antes y durante el uso)</h4>\n<ul>\n<li>Ducharse antes de ingresar al agua, incluso si se aplicó bloqueador o bronceador.</li>\n<li>Usar vestido de baño o pantaloneta en licra o material impermeable.</li>\n<li>Cabello largo totalmente recogido o con gorro de baño.</li>\n<li>Bebés y personas sin control de esfínteres: pañal desechable para piscina.</li>\n<li>Menores de 12 años solo con un adulto responsable que los supervise.</li>\n<li>Ingresar y salir de la piscina usando las escaleras.</li>\n<li>Cubrir la asoleadora con una toalla y liberarla al retirarse.</li>\n<li>Abstenerse de ingresar con heridas abiertas, afecciones de la piel o enfermedades infectocontagiosas.</li>\n</ul>\n<h4 class=\"bad\">Está prohibido (el infractor será retirado y sancionado)</h4>\n<ul>\n<li>Ingresar en estado de embriaguez o bajo efecto de sustancias psicoactivas.</li>\n<li>Consumir alimentos o bebidas dentro de la zona húmeda.</li>\n<li>Ingresar botellas, vasos o envases de vidrio.</li>\n<li>El ingreso de mascotas y animales domésticos.</li>\n<li>Fumar en toda el área de la piscina (Ley 1335 de 2009).</li>\n<li>Juegos bruscos, correr, empujar o lanzar personas al agua.</li>\n<li>Usar la piscina en días lluviosos, tormenta eléctrica o truenos.</li>\n<li>Orinar en la piscina.</li>\n<li>Ingresar bicicletas, patines, patinetas, triciclos o carros infantiles.</li>\n<li>Equipos de sonido o parlantes a alto volumen.</li>\n<li>Balones de cuero, piedras y objetos duros o cortopunzantes.</li>\n<li>Hacer asados o fogatas alrededor de la piscina.</li>\n</ul>\n<h4>Además</h4>\n<ul>\n<li>Uso exclusivo de residentes e invitados, con presencia y supervisión del propietario o arrendatario, quien responde por su comportamiento.</li>\n<li>No usar champú ni jabón en la ducha de salida; úsela solo para retirar el cloro.</li>\n<li>La administración no se responsabiliza por objetos de valor olvidados o perdidos; entréguelos en portería.</li>\n<li>No ingresar sillas ni mesas al agua; son de uso exclusivo en los alrededores de la piscina.</li>\n<li>Los menores son responsabilidad de sus padres o acudientes. No los deje solos.</li>\n<li>El daño causado por mal uso será asumido por el residente responsable, sin perjuicio de las sanciones vigentes.</li>\n</ul>";
 var REGL_SALON="<p class=\"small\" style=\"margin:0 0 6px\">Manual de Convivencia · Sección 8, Art. 41 a 45 · decisiones de asamblea.</p>\n<div><span class=\"dato\"><b>Horario</b> dom. a jue. 9:00 a. m. – 10:00 p. m. · vie. y sáb. 9:00 a. m. – 1:00 a. m.</span><span class=\"dato\"><b>Depósito</b> $100.000 (se devuelven $50.000)</span></div>\n<h4>Condiciones de uso</h4>\n<ul>\n<li>El salón social es de uso exclusivo de residentes y copropietarios, quienes responden por su uso adecuado (Art. 41).</li>\n<li><b>Depósito (asamblea):</b> al reservar se pagan <b>$100.000</b> por adelantado a la cuenta de la copropiedad. Después del evento se devuelven <b>$50.000</b> si el salón se entrega sin daños y debidamente aseado; los otros $50.000 cubren el aseo (Art. 42).</li>\n<li>El salón se entrega con <b>9 sillas</b>, <b>cocineta sin equipamiento</b> y <b>baños funcionales</b>, y debe devolverse completo y en las mismas condiciones (Art. 43 y 45).</li>\n<li>La reserva se hace por el portal indicando el motivo del evento y se asigna por orden de llegada (Art. 44).</li>\n<li>Quien solicite el salón debe estar a paz y salvo por todo concepto con la administración (Art. 45).</li>\n<li>Cualquier evento debe ser aprobado por la administración (Art. 45).</li>\n<li>No se deben colocar puntillas ni tachuelas, ni pegar elementos decorativos con siliconas, colbón u otros pegantes en muros y columnas (Art. 45).</li>\n<li>Cualquier daño en el interior, baños, lavamanos, paredes o partes eléctricas debe ser reparado y pagado por el residente que lo ocasione (Art. 45).</li>\n<li>La administración y el consejo se reservan el derecho de alquilar el salón a quienes hayan incurrido en conductas escandalosas o incumplido este reglamento (Art. 45).</li>\n<li>Quien reserve el salón no puede subarrendarlo; hacerlo se sanciona con un año de suspensión del servicio y multa de un salario mínimo mensual (Art. 45).</li>\n<li>El salón debe permanecer cerrado cuando no esté en uso. Los eventos comunitarios los programan el Consejo de administración y el comité de convivencia (Art. 45).</li>\n</ul>";
-/* v2.46: mientras el reglamento está abierto, la página de atrás queda quieta (en iPhone se movía ella en vez del reglamento) */
+/* v2.47: mientras el reglamento está abierto, la página de atrás queda quieta (en iPhone se movía ella en vez del reglamento) */
 function fondoBloquear(){var b=document.body;if(b.getAttribute('data-sy'))return;var y=window.pageYOffset||document.documentElement.scrollTop||0;b.setAttribute('data-sy',String(y+1));b.style.position='fixed';b.style.top=(-y)+'px';b.style.left='0';b.style.right='0';b.style.width='100%';}
 function fondoLiberar(){var b=document.body,v=b.getAttribute('data-sy');if(!v)return;var y=(parseInt(v,10)||1)-1;b.removeAttribute('data-sy');b.style.position='';b.style.top='';b.style.left='';b.style.right='';b.style.width='';window.scrollTo(0,y);}
 function verReglamento(esp){var ov=$('rg-ov');if(ov){ov.remove();fondoLiberar();}ov=document.createElement('div');ov.id='rg-ov';ov.className='rg-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');
@@ -1855,7 +1861,7 @@ function desactivarAvisos(modo){
   }).catch(function(e){toast('No se pudo desactivar: '+(e&&e.message||e));});
 }
 
-/* --- v2.46: panel amigable (inicio con tarjetas) --- */
+/* --- v2.47: panel amigable (inicio con tarjetas) --- */
 var SEC={
   inicio:{t:'Inicio',ic:I.home,d:''},
   confirmar:{t:'Pagos por confirmar',ic:I.camera,d:'Pagos reportados por los propietarios y solicitudes de paz y salvo.'},
@@ -1886,7 +1892,7 @@ function pendientesDe(A){
   p.egresos=((A.egresos||{}).items||[]).filter(function(e){return e.panel&&e.estado==='por cruzar';}).length;
   p.reservas=A.reservas?(A.reservas.manana||[]).length+(A.reservas.depositos_pendientes||0)+((esAdmin()&&A.piscina_cierres)?(A.piscina_cierres.pendientes||[]).length:0):0;
   p.faltas=(A.faltas||[]).filter(function(f){return f.estado==='pendiente';}).length;
-  p.tareas=(S.perfil&&S.perfil.usuario)?(A.tareas||[]).filter(function(t){return t.estado==='pendiente'&&(t.asignado_a||'neder')===S.perfil.usuario;}).length:0;   // v2.46: las que tengo asignadas
+  p.tareas=(S.perfil&&S.perfil.usuario)?(A.tareas||[]).filter(function(t){return t.estado==='pendiente'&&(t.asignado_a||'neder')===S.perfil.usuario;}).length:0;   // v2.47: las que tengo asignadas
   p.anotaciones=(A.anotaciones||[]).filter(function(a){return a.estado!=='atendida';}).length;
   p.novedades=(A.novedades||[]).filter(function(n){return n.estado!=='atendida';}).length;
   p.agua=(A.agua&&A.agua.n_alertas)||0;
@@ -1926,7 +1932,7 @@ function admInicio(A){
   return h;
 }
 function etiqAdm(l){return String(l).indexOf('y')>0?'Lotes '+String(l).replace('y',' y '):'Lote '+l;}
-/* v2.46 (#4): quién del equipo tiene los avisos activados, con prueba a cada persona */
+/* v2.47 (#4): quién del equipo tiene los avisos activados, con prueba a cada persona */
 function avisosEquipoCard(A){
   var L=A.avisos_equipo||[], RT={admin:'Administración',coadmin:'Coadministración',operario:'Operario',contadora:'Contadora',vigilancia:'Portería'};
   var h='<div class="card in"><h3>'+I.alert+'Avisos del equipo</h3><p class="small" style="margin:0 0 4px">Quién tiene los avisos activados y en cuántos aparatos. A quien aparezca <b>sin avisos</b> no le llega nada: debe entrar al portal desde su celular y tocar "Activar avisos en este aparato" (en Inicio).</p>';
@@ -1937,40 +1943,78 @@ function avisosEquipoCard(A){
 }
 function admAyuda(k){var d=(SEC[k]||{}).d; return d?'<p class="small ayuda">'+esc(d)+'</p>':'';}
 
-/* --- v2.46: reservas en el panel --- */
+/* --- v2.47: reservas en el panel --- */
+function rvTodoCargar(A,hoy){
+  // Una sola consulta por cada carga del panel: 13 meses hacia atrás (archivadas y depósitos sin devolver) y 13 hacia adelante (próximas).
+  if(S.rvTodoDe!==A){S.rvTodoDe=A;S.rvTodo=null;S.rvTodoErr=false;S.rvTodoCarg=false;S.rvAdm={};S.rvAdmCargando=null;}
+  if(S.rvTodo||S.rvTodoCarg||S.rvTodoErr) return;
+  var d=sumarMes(ymDe(hoy),-13)+'-01', h=finMes(sumarMes(ymDe(hoy),13)); S.rvTodoCarg=true;
+  llamar('adminReservas',[S.pin,d,h],function(r){ if(S.rvTodoDe!==A) return; r=r||{}; S.rvTodo={desde:d,hasta:h,reservas:r.reservas||[],canceladas:r.canceladas||[]}; S.rvTodoCarg=false; if(admTab('reservas'))renderAdmin(); },
+    function(){ if(S.rvTodoDe!==A) return; S.rvTodoCarg=false; S.rvTodoErr=true; if(admTab('reservas'))renderAdmin(); });
+}
+function rvFila(r,modo,o){
+  // modo: 'prox' (de hoy en adelante) · 'dev' (ya pasó; depósito del salón recibido y sin devolver) · 'arch' (ya realizada)
+  var dV=r.deposito_valor||100000, dD=r.deposito_devolucion||50000;
+  var dep=o.basico?'':r.espacio==='salon'?(r.deposito_estado==='devuelto'?' · depósito <strong>devuelto</strong>: '+pesos(dD)+' devueltos · '+pesos(dV-dD)+' ingreso por aseo'+(r.deposito_egreso_id?' (gasto '+esc(r.deposito_egreso_id)+')':''):r.deposito_estado==='recibido'?' · depósito <strong>recibido</strong> '+pesos(dV)+' · al entregar se devuelven '+pesos(dD)+' y '+pesos(dV-dD)+' quedan por aseo':' · depósito <strong>pendiente</strong> '+pesos(dV)):'';
+  var pill=modo==='arch'?' <span class="pill ok">Realizada</span>':modo==='dev'?' <span class="pill warn">Por devolver</span>':r.fecha===o.hoy?' <span class="pill warn">Hoy</span>':o.man[r.id]?' <span class="pill info">Mañana</span>':'';
+  var h='<div class="rv-item'+(modo==='arch'?' small':'')+'"><div><strong>'+esc(r.espacio_nombre)+' · '+esc(r.fecha_txt)+'</strong>'+pill+'<br><span class="small">'+esc(etiqAdm(r.lote))+(r.nombre?' · '+esc(r.nombre):'')+(r.telefono?' · '+esc(r.telefono):'')+(r.nota?' · '+esc(r.nota):'')+dep+'</span></div>';
+  if(o.puede&&modo==='prox') h+='<div class="btnrow" style="margin-top:6px">'+(r.espacio==='salon'&&r.deposito_estado==='pendiente'?'<button type="button" class="btn ghost sm" data-rva="'+esc(r.id)+'|deposito_recibido">Depósito recibido</button>':'')+(r.espacio==='salon'&&r.deposito_estado==='recibido'?'<button type="button" class="btn ghost sm" data-rva="'+esc(r.id)+'|deposito_devuelto">Marcar devuelto ('+pesos(dD)+')</button>':'')+'<button type="button" class="btn ghost sm" data-rva="'+esc(r.id)+'|cancelar">Cancelar reserva</button></div>';
+  if(o.puede&&modo==='dev') h+='<div class="btnrow" style="margin-top:6px"><button type="button" class="btn primary sm" data-rva="'+esc(r.id)+'|deposito_devuelto">Marcar devuelto ('+pesos(dD)+')</button></div>';
+  return h+'</div>';
+}
 function admReservas(A){
-  var R0=A.reservas||{reservas:[],canceladas:[],manana:[]}, hoy=R0.hoy||hoyISO(), ym=S.rvMesAdm||ymDe(hoy);
-  // el resumen trae solo desde hoy; para ver un mes completo (incluido lo pasado) se pide ese mes y se guarda
-  S.rvAdm=S.rvAdm||{}; var R=S.rvAdm[ym];
-  if(!R){ if(!S.rvAdmCargando||S.rvAdmCargando!==ym){S.rvAdmCargando=ym;llamar('adminReservas',[S.pin,ym+'-01',finMes(ym)],function(r){S.rvAdm[ym]=r||{reservas:[],canceladas:[]};S.rvAdmCargando=null;if(admTab('reservas'))renderAdmin();},function(){S.rvAdmCargando=null;});}
-    R={reservas:(R0.reservas||[]).filter(function(r){return r.fecha.slice(0,7)===ym;}),canceladas:(R0.canceladas||[]).filter(function(r){return r.fecha.slice(0,7)===ym;}),cargando:true}; }
-  var occ={}; (R.reservas||[]).forEach(function(r){occ[r.espacio+'|'+r.fecha]=r;});
-  var basico=!!(R0.basico||R.basico||(S.perfil&&S.perfil.rol==='vigilancia'));   // v2.46: la portería ve espacio, fecha, lote y nota (sin propietario ni depósito)
-  var czA={}; ((A.piscina_cierres||{}).aprobados||[]).forEach(function(c){czA[c.fecha]=c;});
+  var R0=A.reservas||{reservas:[],canceladas:[],manana:[]}, hoy=R0.hoy||hoyISO(), ym=S.rvMesAdm||ymDe(hoy), mesTxt=nombreMes(ym).toLowerCase();
+  var basico=!!(R0.basico||(S.perfil&&S.perfil.rol==='vigilancia'));   // la portería ve espacio, fecha, lote y nota (sin propietario ni depósito)
+  var o={hoy:hoy,basico:basico,puede:!soloVer('reservas')&&!basico,man:{}}; (R0.manana||[]).forEach(function(r){o.man[r.id]=1;});
+  rvTodoCargar(A,hoy); var T=S.rvTodo, cargando=!T&&!S.rvTodoErr;
+  var porFecha=function(a,b){return String(a.fecha).localeCompare(String(b.fecha))||String(a.espacio).localeCompare(String(b.espacio))||String(a.id).localeCompare(String(b.id));};
+  var delMes=function(r){return String(r.fecha).slice(0,7)===ym;};
+  // --- datos del mes que muestra el calendario
+  var M;
+  if(T&&ym>=ymDe(T.desde)&&ym<=ymDe(T.hasta)) M={reservas:T.reservas.filter(delMes),canceladas:T.canceladas.filter(delMes)};
+  else if(cargando) M={reservas:(R0.reservas||[]).filter(delMes),canceladas:(R0.canceladas||[]).filter(delMes),cargando:true};
+  else { // un mes más lejano (o no se pudo traer todo de una vez): se pide ese mes y se guarda
+    S.rvAdm=S.rvAdm||{}; var Gm=S.rvAdm[ym];
+    if(Gm) M={reservas:Gm.reservas||[],canceladas:(Gm.canceladas||[]).filter(delMes)};
+    else { if(S.rvAdmCargando!==ym){S.rvAdmCargando=ym;llamar('adminReservas',[S.pin,ym+'-01',finMes(ym)],function(r){S.rvAdm=S.rvAdm||{};S.rvAdm[ym]=r||{reservas:[],canceladas:[]};S.rvAdmCargando=null;if(admTab('reservas'))renderAdmin();},function(){S.rvAdmCargando=null;});}
+      M={reservas:(R0.reservas||[]).filter(delMes),canceladas:(R0.canceladas||[]).filter(delMes),cargando:true}; }
+  }
+  // --- las tres listas
+  var prox=(T?T.reservas:(R0.reservas||[])).filter(function(r){return r.fecha>=hoy;}).sort(porFecha);
+  var dev=o.puede?(T?T.reservas:(M.reservas||[])).filter(function(r){return r.fecha<hoy&&r.espacio==='salon'&&r.deposito_estado==='recibido';}).sort(porFecha):[];
+  var enDev={}; dev.forEach(function(r){enDev[r.id]=1;});
+  var arch=(M.reservas||[]).filter(function(r){return r.fecha<hoy&&!enDev[r.id];}).sort(function(a,b){return porFecha(b,a);});
+  var canc=M.canceladas||[];
+  // --- 1) arriba: depósitos por devolver (si hay) y próximas reservas
   var h='<div class="card in"><div class="admin-head"><h3 style="margin:0">'+I_CAL+'Reservas</h3></div>'+(basico?'<p class="small ayuda">Reservas del salón social y la piscina: espacio, fecha, lote y nota. Es solo para consultar; te avisamos cuando haya una reserva nueva o una cancelación.</p>':admAyuda('reservas'));
-  h+='<div class="cal-head"><button type="button" class="btn ghost sm" data-rva-mes="-1">'+I.back+'</button><strong>'+esc(nombreMes(ym))+'</strong><button type="button" class="btn ghost sm" data-rva-mes="1">'+I.back.replace('<svg','<svg style="transform:scaleX(-1)"')+'</button></div>';
+  if(dev.length){ h+='<div class="rv-dev"><p class="rv-sub">Depósitos por devolver ('+dev.length+')</p><p class="small" style="margin:0 0 4px">'+(dev.length===1?'Esta reserva del salón social ya pasó y su depósito sigue recibido. Queda':'Estas reservas del salón social ya pasaron y su depósito sigue recibido. Quedan')+' aquí, sin archivar, hasta que marques la devolución.</p>';
+    dev.forEach(function(r){h+=rvFila(r,'dev',o);}); h+='</div>'; }
+  h+='<p class="rv-sub">Próximas reservas ('+prox.length+')'+(cargando?' <span class="small">cargando…</span>':'')+'</p><p class="small" style="margin:0 0 4px">Piscina y salón social, de hoy en adelante.'+(o.puede?' Aquí se marca el depósito del salón o se cancela una reserva.':'')+' Las que ya pasaron quedan archivadas debajo del calendario.</p>';
+  if(!prox.length&&!cargando) h+='<p class="empty">No hay reservas próximas.</p>';
+  prox.forEach(function(r){h+=rvFila(r,'prox',o);});
+  h+='</div>';
+  // --- 2) debajo: calendario del mes, con sus archivadas y canceladas
+  var occ={}; (M.reservas||[]).forEach(function(r){occ[r.espacio+'|'+r.fecha]=r;});
+  var czA={}; ((A.piscina_cierres||{}).aprobados||[]).forEach(function(c){czA[c.fecha]=c;});
+  h+='<div class="card in"><h3>'+I_CAL+'Calendario</h3>';
+  h+='<div class="cal-head"><button type="button" class="btn ghost sm" data-rva-mes="-1" aria-label="Mes anterior">'+I.back+'</button><strong>'+esc(nombreMes(ym))+(M.cargando?' <span class="small">cargando…</span>':'')+'</strong><button type="button" class="btn ghost sm" data-rva-mes="1" aria-label="Mes siguiente">'+I.back.replace('<svg','<svg style="transform:scaleX(-1)"')+'</button></div>';
   h+='<div class="cal">'+DIAS_SEM.map(function(d){return '<span class="cal-d">'+d+'</span>';}).join('');
   var n=diasDe(ym), primero=diaSem(ym+'-01'); for(var i=0;i<primero;i++) h+='<span></span>';
   for(var d=1;d<=n;d++){ var iso=ym+'-'+('0'+d).slice(-2), a=occ['salon|'+iso], b=occ['piscina|'+iso];
     var cc=czA[iso]; h+='<span class="cal-dia adm'+(iso===hoy?' hoy':'')+(iso<hoy?' off':'')+'"'+(cc?' title="Piscina cerrada por mantenimiento"':'')+'>'+d+(a||b||cc?'<i class="cal-pts">'+(a?'<b class="s"></b>':'')+(b?'<b class="p"></b>':'')+(cc?'<b class="c"></b>':'')+'</i>':'')+'</span>'; }
-  h+='</div><p class="small cal-leg"><b class="s pt"></b> salón social · <b class="p pt"></b> piscina · <b class="c pt"></b> piscina cerrada por mantenimiento</p></div>';
+  h+='</div><p class="small cal-leg"><b class="s pt"></b> salón social · <b class="p pt"></b> piscina · <b class="c pt"></b> piscina cerrada por mantenimiento</p>';
+  h+='<div class="rv-arch">';
+  if(!arch.length) h+='<p class="small" style="margin:0;color:var(--muted)">'+(M.cargando?'Buscando las reservas archivadas de '+esc(mesTxt)+'…':'No hay reservas archivadas en '+esc(mesTxt)+'.')+'</p>';
+  else if(!S.rvArch) h+='<p class="d acc" style="margin:0"><button type="button" class="linkbtn" data-rva-arch="ver">'+I.file+' Ver archivadas de '+esc(mesTxt)+' ('+arch.length+')</button></p>';
+  else { h+='<p class="rv-sub">Archivadas de '+esc(mesTxt)+' ('+arch.length+')</p><p class="d acc" style="margin:0 0 4px"><button type="button" class="linkbtn" data-rva-arch="ocultar">Ocultar archivadas</button></p>';
+    arch.forEach(function(r){h+=rvFila(r,'arch',o);}); }
+  if(canc.length) h+='<details style="margin-top:10px"><summary class="small">Canceladas de '+esc(mesTxt)+' ('+canc.length+')</summary>'+canc.map(function(r){return '<div class="rv-item small"><div>'+esc(r.espacio_nombre)+' · '+esc(r.fecha_txt)+' · '+esc(etiqAdm(r.lote))+(r.motivo?' · '+esc(r.motivo):'')+'</div></div>';}).join('')+'</details>';
+  h+='</div></div>';
+  // --- 3) al final: cierre de la piscina por mantenimiento
   h+=piscinaCierreCard(A);
-  var prox=(R.reservas||[]).slice().sort(function(a,b){return String(a.fecha).localeCompare(String(b.fecha));}), nPas=prox.filter(function(r){return r.fecha<hoy;}).length;
-  h+='<div class="card in"><h3>Reservas de '+esc(nombreMes(ym))+' ('+prox.length+')'+(R.cargando?' <span class="small">cargando…</span>':'')+'</h3>';
-  if(nPas) h+='<p class="small" style="margin:0 0 6px">'+nPas+(nPas===1?' ya realizada':' ya realizadas')+(soloVer('reservas')?'.':' · las de hoy en adelante se pueden cancelar o marcar el depósito.')+'</p>';
-  if(!prox.length&&!R.cargando) h+='<p class="empty">No hay reservas en '+esc(nombreMes(ym))+'.</p>';
-  prox.forEach(function(r){ var pasada=r.fecha<hoy;
-    var dV=r.deposito_valor||100000, dD=r.deposito_devolucion||50000;
-    var dep=basico?'':r.espacio==='salon'?(r.deposito_estado==='devuelto'?' · depósito <strong>devuelto</strong>: '+pesos(dD)+' devueltos · '+pesos(dV-dD)+' ingreso por aseo'+(r.deposito_egreso_id?' (gasto '+esc(r.deposito_egreso_id)+')':''):r.deposito_estado==='recibido'?' · depósito <strong>recibido</strong> '+pesos(dV)+' · al entregar se devuelven '+pesos(dD)+' y '+pesos(dV-dD)+' quedan por aseo':' · depósito <strong>pendiente</strong> '+pesos(dV)):'';
-    h+='<div class="rv-item'+(pasada?' small':'')+'"><div><strong>'+esc(r.espacio_nombre)+' · '+esc(r.fecha_txt)+'</strong>'+(pasada?' <span class="pill ok">Realizada</span>':r.fecha===hoy?' <span class="pill warn">Hoy</span>':'')+'<br><span class="small">'+esc(etiqAdm(r.lote))+(r.nombre?' · '+esc(r.nombre):'')+(r.telefono?' · '+esc(r.telefono):'')+(r.nota?' · '+esc(r.nota):'')+dep+'</span></div>';
-    if(!soloVer('reservas')&&(!pasada||(r.espacio==='salon'&&r.deposito_estado==='recibido'))){ h+='<div class="btnrow" style="margin-top:6px">'+(r.espacio==='salon'&&r.deposito_estado==='pendiente'?'<button type="button" class="btn ghost sm" data-rva="'+esc(r.id)+'|deposito_recibido">Depósito recibido</button>':'')+(r.espacio==='salon'&&r.deposito_estado==='recibido'?'<button type="button" class="btn ghost sm" data-rva="'+esc(r.id)+'|deposito_devuelto">Marcar devuelto ('+pesos(dD)+')</button>':'')+'<button type="button" class="btn ghost sm" data-rva="'+esc(r.id)+'|cancelar">Cancelar reserva</button></div>'; }
-    h+='</div>';
-  });
-  if((R.canceladas||[]).length) h+='<details style="margin-top:8px"><summary class="small">Canceladas ('+R.canceladas.length+')</summary>'+R.canceladas.map(function(r){return '<div class="rv-item small"><div>'+esc(r.espacio_nombre)+' · '+esc(r.fecha_txt)+' · '+esc(etiqAdm(r.lote))+' · '+esc(r.motivo||'')+'</div></div>';}).join('')+'</details>';
-  h+='</div>';
   return h;
 }
-/* v2.46 (#8): cierre de la piscina por mantenimiento. Lo pide el operario; lo aprueban Manuela o Juan José; ese día queda bloqueado. */
+/* v2.47 (#8): cierre de la piscina por mantenimiento. Lo pide el operario; lo aprueban Manuela o Juan José; ese día queda bloqueado. */
 function piscinaCierreCard(A){
   var C=A.piscina_cierres||{pendientes:[],aprobados:[]}, rol=(S.perfil&&S.perfil.rol)||'admin', adm=esAdmin()||!S.perfil||S.perfil.tipo!=='usuario', puedePedir=adm||rol==='operario';
   var pend=C.pendientes||[], apr=C.aprobados||[];
@@ -2014,6 +2058,7 @@ function reservasAdmAccion(t){
   if(t.hasAttribute('data-adm-mod')){irPestana(subPestanaDe(t.getAttribute('data-adm-mod')));return true;}
   if(t.id==='b-menu'){var mn=$('adm-menu');if(mn){mn.hidden=!mn.hidden;t.setAttribute('aria-expanded',String(!mn.hidden));}return true;}
   if(t.id==='b-tema-m'){var bt=$('b-tema');if(bt)bt.click();renderAdmin();return true;}
+  if(t.hasAttribute('data-rva-arch')){S.rvArch=t.getAttribute('data-rva-arch')==='ver';renderAdmin();return true;}
   if(t.hasAttribute('data-rva-mes')){S.rvMesAdm=sumarMes(S.rvMesAdm||ymDe(hoyISO()),parseInt(t.getAttribute('data-rva-mes'),10));renderAdmin();return true;}
   if(t.hasAttribute('data-rva')){S.rvAdm={};
     var p=t.getAttribute('data-rva').split('|'), motivo='';
@@ -2025,7 +2070,7 @@ function reservasAdmAccion(t){
   return false;
 }
 
-/* --- v2.46: contabilidad (contadora y administración) --- */
+/* --- v2.47: contabilidad (contadora y administración) --- */
 function primerDiaMes(ym){return ym+'-01';}
 function ultimoDiaMes(ym){return ym+'-'+('0'+diasDe(ym)).slice(-2);}
 function tarjetaPresupuesto(PR){
@@ -2069,7 +2114,7 @@ function contaAccion(t){
   return false;
 }
 
-/* --- v2.46: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
+/* --- v2.47: Resumen con estadísticas, desatraso y cuentas por pagar del mes --- */
 function admResumen(A,pend,pz){
   if(!S.estad){ llamar('estad',[S.pin,S.resMes||''],function(r){S.estad=r;S.resMes=r.ym;renderAdmin();},function(m){S.estad={error:m};renderAdmin();}); return '<div class="card in"><p class="empty">Cargando el resumen…</p></div>'; }
   if(S.estad.error) return '<div class="card in"><p class="err">'+esc(S.estad.error)+'</p><button type="button" class="btn ghost sm" data-adm-go="inicio">Volver</button></div>';
@@ -2141,7 +2186,7 @@ function desatrasoPanel(D){
   return h+'</div>';
 }
 
-/* --- v2.46: cuentas por pagar del mes (gastos fijos) --- */
+/* --- v2.47: cuentas por pagar del mes (gastos fijos) --- */
 function cuentasPorPagar(A){
   var D=S.cpp||A.cuentas_pagar; if(!D) return '';
   var ym=D.ym, R=D.resumen||{}, items=D.items||[], tope=(A.cuentas_pagar&&A.cuentas_pagar.ym)||ym, ver=soloVer('facturas');
@@ -2210,7 +2255,7 @@ document.addEventListener('change',function(e){
   if(el.id==='nom-cmp-file'){var num=S.nomCmpNum;var f=(el.files||[])[0];if(!f||!num)return;leerCaptura(f,function(x){llamar('nominaComprobante',[S.pin,S.quien,num,{b64:x.b64,nombre:x.nombre,mime:x.mime}],function(){S.nomCmpNum=null;recargarAdmin('Comprobante cargado para el recibo '+num+'.');},function(m){toast(m);});});el.value='';return;}
 });
 
-/* --- v2.46: faltas al reglamento, tareas del operario, comprobante de nómina --- */
+/* --- v2.47: faltas al reglamento, tareas del operario, comprobante de nómina --- */
 function esAdmin(){return S.perfil&&(S.perfil.rol==='admin'||S.perfil.rol==='coadmin');}
 function fotosPick(key,label){
   var P=S[key]||(S[key]={files:[]});
@@ -2493,14 +2538,14 @@ function admNovedades(A){
   h+=novArchivadas();
   return h+'</div>';
 }
-/* v2.46 (#6): a quién se le puede asignar una tarea (Manuela, Juan José, Neder) */
+/* v2.47 (#6): a quién se le puede asignar una tarea (Manuela, Juan José, Neder) */
 function asignables(){var L=(S.admin&&S.admin.asignables)||[];return L.length?L:[{usuario:'manuela',nombre:'Manuela'},{usuario:'juanjose',nombre:'Juan José'},{usuario:'neder',nombre:'Neder'}];}
 function selAsignado(id,actual){return '<select id="'+id+'">'+asignables().map(function(u){return '<option value="'+esc(u.usuario)+'"'+(u.usuario===actual?' selected':'')+'>'+esc(u.nombre)+'</option>';}).join('')+'</select>';}
 function asignadoDef(){var yo=S.perfil&&S.perfil.usuario;return (esAdmin()||!yo)?'neder':(yo==='neder'?'manuela':'neder');}
 function novTareaForm(n){
   return '<div class="frm" style="margin-top:8px"><p class="frm-t">Mandar como tarea</p><div class="field"><label for="novt-asig">¿A quién se le asigna?</label>'+selAsignado('novt-asig',asignadoDef())+'</div><p class="small" style="margin:0 0 6px">La tarea queda con el texto y las fotos de esta novedad en la lista de tareas de esa persona, y le llega el aviso.'+(esAdmin()?' La novedad pasa a archivadas.':'')+'</p><div class="btnrow"><button type="button" class="btn primary sm" data-nov-tarea-ok="'+n.id+'">Enviar tarea</button><button type="button" class="btn ghost sm" data-nov-tarea-no="1">Cancelar</button></div></div>';
 }
-/* v2.46 (#10): las novedades atendidas quedan archivadas; se ven solo al pedirlas */
+/* v2.47 (#10): las novedades atendidas quedan archivadas; se ven solo al pedirlas */
 function novArchivadas(){
   var AR=S.novArch, N=S.novArchN||30;
   if(!AR) return '<p class="d acc" style="margin-top:12px"><button type="button" class="linkbtn" data-nov-arch="ver">'+I.file+' Ver archivadas</button></p>';
@@ -2676,7 +2721,7 @@ function admAgua(A){
   });
   return h+'</div>'+aguaPiscinaCard(A);
 }
-/* v2.46 (#3): contador de agua de la piscina, aparte del macromedidor (las lecturas no se mezclan ni se suman) */
+/* v2.47 (#3): contador de agua de la piscina, aparte del macromedidor (las lecturas no se mezclan ni se suman) */
 function aguaPiscinaCard(A){
   var G=(A.agua||{}).piscina||{dias:[],ultima:null}, dias=G.dias||[], ult=G.ultima, ver=soloVer('agua');
   var h='<div class="card in"><div class="admin-head"><h3 style="margin:0">'+I.drop+'Contador de la piscina</h3></div>';
@@ -2989,7 +3034,7 @@ function iaAccion(t){
   return false;
 }
 function errForm(m){var e=$('f-err');if(e){e.textContent=m;e.hidden=false;}else toast(m);}
-/* v2.46 (#5): la IA lee el valor y la fecha del comprobante de un pago (gasto o cuenta fija) y los deja en el formulario para revisar */
+/* v2.47 (#5): la IA lee el valor y la fecha del comprobante de un pago (gasto o cuenta fija) y los deja en el formulario para revisar */
 function iaComprobante(el,a){
   var esCpp=el.id==='cpp-file'&&S.cppOpen&&S.cppOpen.modo==='pago', esEg=el.id==='e-file';
   if(!esCpp&&!esEg) return;
@@ -3205,7 +3250,7 @@ document.addEventListener('change',function(e){
     var isPdf=/pdf$/i.test(f.type)||/\.pdf$/i.test(f.name);
     var C=calcDoc(), P=S.D.prop, multi=P.lotes.length>1, ym=S.D.periodo.ym;
     var pend=multi?sum(P.lotes,function(id){return C[id][ym]?C[id][ym].pend:0;}):(C[S.lote][ym]?C[S.lote][ym].pend:0);
-    /* v2.46: la foto se aliviana antes de subir (como en el panel) para que suba rápido y la IA la pueda leer */
+    /* v2.47: la foto se aliviana antes de subir (como en el panel) para que suba rápido y la IA la pueda leer */
     leerCaptura(f,function(x){
       var dataUrl=x.url, b64=x.b64;
       S.rep={step:'reading',file:{pdf:isPdf,name:x.nombre,img:isPdf?'':dataUrl}}; renderReportar();
@@ -3242,7 +3287,7 @@ waLink();
 })();
 /* modo día / noche: botón flotante que recuerda la preferencia en este teléfono */
 (function(){var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';function cur(){var t=document.documentElement.getAttribute('data-theme');if(t)return t;return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}var b=document.createElement('button');b.type='button';b.id='b-tema';b.className='tema-fab';function pinta(){var d=cur()==='dark';b.innerHTML=(d?SUN:MOON)+'<span>'+(d?'Modo día':'Modo noche')+'</span>';b.setAttribute('aria-label',d?'Cambiar a modo día':'Cambiar a modo noche');}b.addEventListener('click',function(){var n=cur()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('qdl_tema',n);}catch(e){}pinta();});pinta();var fl=document.querySelector('.foot-links');(fl||document.body).appendChild(b);})();
-/* v2.46: al tocar un aviso del equipo se abre el panel en la pestaña que corresponde (#admin o #admin=pestaña) */
+/* v2.47: al tocar un aviso del equipo se abre el panel en la pestaña que corresponde (#admin o #admin=pestaña) */
 function irDesdeAviso(){
   var m=/^#admin(?:=([a-z_]+))?$/.exec(String(location.hash||'')); if(!m) return;
   S.irA=m[1]||'';
