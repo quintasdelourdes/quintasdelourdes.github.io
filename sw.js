@@ -1,4 +1,5 @@
-// Service worker del portal de Quintas de Lourdes (v2.6) · solo para los avisos (Web Push). No guarda páginas en caché.
+// Service worker del portal de Quintas de Lourdes (v2.45) · solo para los avisos (Web Push). No guarda páginas en caché.
+// v2.45: cada aviso lleva su propia etiqueta (tag), para que un aviso nuevo NO reemplace al anterior en el celular.
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 
@@ -10,7 +11,7 @@ self.addEventListener('push', (e) => {
     body: d.body || '',
     icon: d.icon || './icon-192.png',
     badge: d.badge || './icon-192.png',
-    tag: d.tag || 'ql-aviso',
+    tag: d.tag || ('ql-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7)),
     renotify: true,
     data: { url: d.url || './' }
   };
